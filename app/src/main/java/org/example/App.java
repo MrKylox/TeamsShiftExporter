@@ -8,9 +8,11 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
 import javafx.application.Application;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -31,11 +33,33 @@ public class App extends Application {
             }
         });
 
-        VBox vBox = new VBox(exportButton);
-        Scene scene = new Scene(vBox, 300, 200);
+        // primaryStage.initStyle(StageStyle.DECORATED);
+        // VBox vBox = new VBox(exportButton);
+        // Scene scene = new Scene(vBox, 600, 600);
+        // primaryStage.setScene(scene);
+        Scene scene = new Scene(createContent());
         primaryStage.setScene(scene);
+
+        primaryStage.setOnCloseRequest(event -> {System.out.println("Closing Stage");});
+
         primaryStage.show();
+
+        
     }
+
+    private Parent createContent() {
+        ValidatingTextField field = new ValidatingTextField(input -> input.contains("a"));
+        field.setFont(Font.font(22));
+        Button btn = new Button("Submit");
+        btn.setFont(Font.font(22));
+        btn.disableProperty().bind(field.isValidProperty().not());
+
+
+        VBox vBox = new VBox(10, field, btn);
+        return vBox;
+    }
+
+
 
     private void exportToCSV(File file) {
         String[] headers = { "ID", "Name", "Email" };
