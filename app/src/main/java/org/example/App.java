@@ -52,8 +52,8 @@ public class App extends Application {
         smArc2.setFill(Color.web("0xF2A444"));
         smArc2.setType(ArcType.ROUND);
 
-        //9568.20: X, 320.20:Y
-        Arc medArc = new Arc(1380, 320.20, 60, 60, 90, 90);
+        //568.20: X, 320.20:Y
+        Arc medArc = new Arc(568-20, 320-20, 60, 60, 90, 90);
         medArc.setFill(Color.web("0xD9583B"));
         medArc.setType(ArcType.ROUND);
 
@@ -68,6 +68,7 @@ public class App extends Application {
         primaryStage.setScene(scene);
         primaryStage.setWidth(568);
         primaryStage.setHeight(320);
+        primaryStage.setMaximized(true);
         primaryStage.show();
         
     }
@@ -86,33 +87,6 @@ public class App extends Application {
         VBox vBox = new VBox(10, field, btn);
         return vBox;
     }
-
-
-
-    // private void exportToCSV(File file) {
-    //     String[] headers = { "ID", "Name", "Email" };
-    //     String[][] data = {
-    //             { "1", "John Doe", "john.doe@example.com" },
-    //             { "2", "Jane Smith", "jane.smith@example.com" },
-    //             { "3", "Mike Johnson", "mike.johnson@example.com" }
-    //     };
-
-    //     CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader(headers).build();
-
-    //     try (FileWriter writer = new FileWriter(file);
-    //          CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat)) {
-
-    //         for (String[] record : data) {
-    //             csvPrinter.printRecord((Object[]) record);
-    //         }
-
-    //         csvPrinter.flush();
-    //         System.out.println("CSV file created successfully!");
-
-    //     } catch (IOException ex) {
-    //         ex.printStackTrace();
-    //     }
-    // }
 
     public static void main(String[] args) {
         launch(args);
