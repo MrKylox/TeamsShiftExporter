@@ -1,11 +1,10 @@
-package org.example;
+package edu.ITSolutions.Export;
+
 
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -15,7 +14,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Arc;
 import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Circle;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 public class App extends Application {
@@ -73,20 +71,7 @@ public class App extends Application {
         
     }
 
-    private Parent createContent() {
-        ValidatingTextField field = new ValidatingTextField(input -> input.contains("a"));
-        field.setFont(Font.font(22));
-        Button btn = new Button("Submit");
-        btn.setOnAction(event -> {
-            System.out.println("button Was pressed");
-        });
-        btn.setFont(Font.font(22));
-        btn.disableProperty().bind(field.isValidProperty().not());
 
-
-        VBox vBox = new VBox(10, field, btn);
-        return vBox;
-    }
 
     public static void main(String[] args) {
         launch(args);
