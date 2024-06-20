@@ -21,12 +21,9 @@ repositories {
 dependencies {
     implementation 'org.openjfx:javafx:22.0.1'
     implementation 'org.apache.commons:commons-csv:1.9.0'
-
-    // compile 'org.openjfx:javafx-controls:22.0.1'
-    // compile 'org.openjfx:javafx-fxml:22.0.1'
-
-
+    implementation 'org.apache.poi:poi-ooxml:5.0.0'
 }
+
 // Apply a specific Java toolchain to ease working on different environments.
 java {
     toolchain {
