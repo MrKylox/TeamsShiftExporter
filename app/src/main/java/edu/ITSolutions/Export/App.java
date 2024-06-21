@@ -16,7 +16,7 @@ public class App extends Application {
         Scene scene = new Scene(root, 800, 600);
         primaryStage.setTitle("Schedule Manager");
         primaryStage.setScene(scene);
-        primaryStage.setFullScreen(true);
+        // primaryStage.setFullScreen(true); -- UNcomment before pushing
         primaryStage.show();
     }
 
