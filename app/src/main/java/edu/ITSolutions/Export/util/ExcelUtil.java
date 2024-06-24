@@ -68,6 +68,10 @@ public class ExcelUtil {
         return shifts;
     }
 
+    public int rowNumber(Row row){
+        return row.getRowNum();
+    }
+
     public Sheet getSheet(String name) {
         return sheets.get(name);
     }

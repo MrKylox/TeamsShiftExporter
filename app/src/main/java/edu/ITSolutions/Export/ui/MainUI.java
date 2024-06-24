@@ -61,6 +61,7 @@ public class MainUI {
                 try {
                     excelUtil = new ExcelUtil(selectedFile); // Use the selected file to utilize the imported file
                     memberList.setAll(excelUtil.getMembers()); // Retrieve the members from the excel file
+                    System.out.printf("File imported");
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
