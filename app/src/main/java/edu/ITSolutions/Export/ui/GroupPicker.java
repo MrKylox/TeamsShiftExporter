@@ -10,9 +10,8 @@ public class GroupPicker extends HBox{
     public GroupPicker(){
         groupComboBox = new ComboBox<>();
 
-        groupComboBox.getItems().add("Green");
-        groupComboBox.getItems().add("Yellow");
-        groupComboBox.getItems().add("Dark Yellow");
+        groupComboBox.getItems().add("Lead Consultants");
+        groupComboBox.getItems().add("Senior and Student Consultants");
 
         this.getChildren().addAll(groupComboBox);
 
