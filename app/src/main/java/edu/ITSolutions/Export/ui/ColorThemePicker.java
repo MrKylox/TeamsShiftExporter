@@ -9,9 +9,9 @@ public class ColorThemePicker extends HBox{
     public ColorThemePicker(){
         colorComboBox = new ComboBox<>();
 
-        colorComboBox.getItems().add("Green");
-        colorComboBox.getItems().add("Yellow");
-        colorComboBox.getItems().add("Dark Yellow");
+        colorComboBox.getItems().add("3. Green");
+        colorComboBox.getItems().add("6. Yellow");
+        colorComboBox.getItems().add("12. Dark Yellow");
 
         this.getChildren().addAll(colorComboBox);
     }
