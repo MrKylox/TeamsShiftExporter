@@ -30,7 +30,6 @@ public class MainUI {
     private ExcelUtil excelUtil;
     private final ObservableList<Member> memberList = FXCollections.observableArrayList();
     private final ObservableList<Shift> shiftList = FXCollections.observableArrayList();
-    private final ObservableList<Shift> allShifts = FXCollections.observableArrayList();
     private MemberShiftShower memberShiftShower;
     private ComboBox<Member> memberChoiceBox;
     private final CheckBox[] dayCheckBoxes = new CheckBox[7];
@@ -197,7 +196,7 @@ public class MainUI {
                 for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
                     if (selectedDays.contains(date.getDayOfWeek())) {
                         Shift newShift = new Shift(date.toString(), startTime, date.toString(), endTime, group, themeColor, selectedMember.getName());
-                        allShifts.add(newShift);
+                        shiftList.add(newShift);
                     }
                 }
                 filterShiftsByMember();
