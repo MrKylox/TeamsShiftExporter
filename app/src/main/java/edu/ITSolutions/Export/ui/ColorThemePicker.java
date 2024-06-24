@@ -16,7 +16,7 @@ public class ColorThemePicker extends HBox{
         this.getChildren().addAll(colorComboBox);
     }
 
-    public String getTime() {
+    public String getColor() {
         return colorComboBox.getValue();
     }
 }

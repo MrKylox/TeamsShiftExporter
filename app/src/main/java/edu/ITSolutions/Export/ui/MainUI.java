@@ -37,8 +37,8 @@ public class MainUI {
     private DatePicker endDatePicker;
     CustomTimePicker startTimePicker;
     CustomTimePicker endTimePicker; 
-    private TextField themeColorField = new TextField();
-    private TextField groupField = new TextField();
+    private ColorThemePicker themeColorField; 
+    private GroupPicker groupField;
 
     //---------------------------VBox Creator ------------------------------------------
     public VBox createMainLayout() {
@@ -119,11 +119,9 @@ public class MainUI {
         startTimePicker = new CustomTimePicker();
         endTimePicker = new CustomTimePicker();
         
-        themeColorField = new TextField();
-        themeColorField.setPromptText("Theme Color");
+        themeColorField = new ColorThemePicker();
 
-        groupField = new TextField();
-        groupField.setPromptText("Group");
+        groupField = new GroupPicker();
 
         HBox inputBox = new HBox(new Label("Start Time:"), startTimePicker, new Label("End Time:"), endTimePicker, 
                                  new Label("Group:"), groupField, new Label("Theme Color:"), themeColorField);
@@ -177,8 +175,8 @@ public class MainUI {
             LocalDate endDate = endDatePicker.getValue();
             String startTime = startTimePicker.getTime();
             String endTime = endTimePicker.getTime();
-            String group = groupField.getText();
-            String themeColor = themeColorField.getText();
+            String group = groupField.getGroup();
+            String themeColor = themeColorField.getColor();
 
             if (startDate != null && endDate != null && !startDate.isAfter(endDate) &&
             startTime != null && !startTime.isEmpty() &&

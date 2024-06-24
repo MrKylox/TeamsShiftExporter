@@ -14,10 +14,9 @@ public class GroupPicker extends HBox{
         groupComboBox.getItems().add("Senior and Student Consultants");
 
         this.getChildren().addAll(groupComboBox);
-
     }
 
-    public String getTime() {
+    public String getGroup() {
         return groupComboBox.getValue();
     }
 
