@@ -1,6 +1,7 @@
 package edu.ITSolutions.Export;
 
 import edu.ITSolutions.Export.ui.MainUI;
+import edu.ITSolutions.Export.util.ProfilesUtil;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
@@ -21,6 +22,15 @@ public class App extends Application {
     }
 
     public static void main(String[] args) {
+        ProfilesUtil.createDirectoryIfNotExists();
+
+        if (!ProfilesUtil.doesFileExist()) {
+            ProfilesUtil.createExcelFile();
+            System.out.println("Excel file created.");
+        } else {
+            System.out.println("Excel file already exists. Reading data...");
+            ProfilesUtil.readExcelFile();
+        }
         launch(args);
     }
 }
