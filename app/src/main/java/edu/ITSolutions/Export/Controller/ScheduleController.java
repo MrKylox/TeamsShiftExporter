@@ -36,26 +36,24 @@ public class ScheduleController {
             Row rowItem = sheet.getRow(i);
             if(rowItem != null){
                 Cell rowMember = rowItem.getCell(0);
-                Cell rowEmail = rowItem.getCell(1);
-                Cell rowGroup = rowItem.getCell(2);
+                // Cell rowEmail = rowItem.getCell(1);
+                // Cell rowGroup = rowItem.getCell(2);
                 Cell rowStartDate = rowItem.getCell(3);
                 Cell rowStartTime = rowItem.getCell(4);
-                Cell rowEndDate = rowItem.getCell(5);
+                // Cell rowEndDate = rowItem.getCell(5);
                 Cell rowEndTime = rowItem.getCell(6);
-                Cell rowColor = rowItem.getCell(7);
+                // Cell rowColor = rowItem.getCell(7);
 
                 if(rowMember != null && rowMember.getStringCellValue().equals(member) &&
-                    rowEmail != null && rowEmail.getStringCellValue().equals(email) &&
-                    rowGroup != null && rowGroup.getStringCellValue().equals(group) &&
-                    rowStartDate != null && rowStartDate.getStringCellValue().equals(startDate) &&
-                    rowStartTime != null && rowStartDate.getStringCellValue().equals(startTime) &&
-                    rowEndDate != null && rowEndDate.getStringCellValue().equals(endDate) &&
-                    rowEndTime != null && rowEndTime.getStringCellValue().equals(endTime) &&
-                    rowColor != null && rowColor.getStringCellValue().equals(color)
+                    rowStartDate != null && rowStartDate.getStringCellValue().equals(startDate)
+                    //rowStartTime != null && rowStartDate.getStringCellValue().equals(startTime)
+                    // rowEndDate != null && rowEndDate.getStringCellValue().equals(endDate) 
+                    // &&
+                    // rowEndTime != null && rowEndTime.getStringCellValue().equals(endTime)
                     ){
                     updateRow(rowItem,member,email,group,startDate,startTime,endDate,endTime,color);
                     System.out.println("updated is now true");
-
+                    System.out.printf("These is time:",rowStartDate,"string start",rowStartDate.getStringCellValue(),rowStartTime.getStringCellValue());
                     updated = true;
                     break;
                 }
