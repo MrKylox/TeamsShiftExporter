@@ -29,7 +29,6 @@ public class App extends Application {
             System.out.println("Excel file created.");
         } else {
             System.out.println("Excel file already exists. Reading data...");
-            ProfilesUtil.readExcelFile();
         }
         launch(args);
     }
