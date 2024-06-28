@@ -26,6 +26,8 @@ public class ProfilesUtil {
     private static final String[] SEASON_HEADERS = {"Season", "Start Date", "End Date"};
     private final Workbook workbook;
     private final File profilesFile;
+    private static final String[] seasonList = {"Fall", "Winter", "Spring", "Summer"};
+    private int receivedSeason = -1;
 
     public ProfilesUtil() throws IOException {
         FileInputStream fileInputStream = new FileInputStream(FILE_NAME);
@@ -66,6 +68,18 @@ public class ProfilesUtil {
                 cell.setCellValue(SEASON_HEADERS[i]);
             }
 
+            for (int i = 0; i < seasonList.length; i++){
+                Row seasonRow = seasonSheet.createRow(i+1);
+                Cell season = seasonRow.createCell(0);
+                Cell start = seasonRow.createCell(1);
+                Cell end = seasonRow.createCell(2);
+                season.setCellValue(seasonList[i]);
+                start.setCellValue("Not Set");
+                end.setCellValue("Not Set");
+            }
+            
+            
+
             try (FileOutputStream fileOut = new FileOutputStream(FILE_NAME)) {
                 workbook.write(fileOut);
             } catch (IOException e) {
@@ -76,7 +90,7 @@ public class ProfilesUtil {
         }
     }
 
-    public void saveProfile(String member, String day, String startTime, String endTime, LocalDate startDate, LocalDate endDate, String group, String color, String season) {
+    public void saveProfile(String member, String day, String startTime, String endTime, String group, String color, String season) {
         Sheet memberSheet = workbook.getSheet(MEMBER_PROFILES_SHEET);
         int lastRowNum = memberSheet.getLastRowNum();
         Row row = memberSheet.createRow(lastRowNum + 1);
@@ -87,32 +101,72 @@ public class ProfilesUtil {
         row.createCell(4).setCellValue(group);
         row.createCell(5).setCellValue(color);
         
-        Sheet seasonSheet = workbook.getSheet(SEASON_PROFILES_SHEET);
-        Row seasonRow = seasonSheet.createRow(lastRowNum + 1);
-        seasonRow.createCell(0).setCellValue(season);
-        seasonRow.createCell(1).setCellValue(startDate.toString());
-        seasonRow.createCell(2).setCellValue(endDate.toString());
+        // Sheet seasonSheet = workbook.getSheet(SEASON_PROFILES_SHEET);
+        // Row seasonRow = seasonSheet.createRow(lastRowNum + 1);
+        // seasonRow.createCell(0).setCellValue(season);
+        // seasonRow.createCell(1).setCellValue(startDate.toString());
+        // seasonRow.createCell(2).setCellValue(endDate.toString());
         
         save();
     }
 
-    public List<Shift> getProfileShifts(String member, LocalDate startDate, LocalDate endDate) {
-        List<Shift> profileShifts = new ArrayList<>();
-        Sheet memberSheet = workbook.getSheet(MEMBER_PROFILES_SHEET);
-        if (memberSheet != null) {
-            for (Row row : memberSheet) {
-                if (row.getRowNum() == 0) continue; // Skip header row
-                String memberName = row.getCell(0).getStringCellValue();
-                DayOfWeek day = DayOfWeek.valueOf(row.getCell(1).getStringCellValue());
-                String startTime = row.getCell(2).getStringCellValue();
-                String endTime = row.getCell(3).getStringCellValue();
-                String group = row.getCell(4).getStringCellValue();
-                String color = row.getCell(5).getStringCellValue();
+    public void saveSeason(String season, LocalDate startDate, LocalDate endDate){
+        Sheet seasonSheet = workbook.getSheet(SEASON_PROFILES_SHEET);
+        for (int i = 0; i < seasonList.length; i++) {
+            if (seasonList[i].equals(season)) {
+                receivedSeason = i + 1;
+                break;
+            }
+        }
+        if (receivedSeason != -1) {
+            Row seasonRow = seasonSheet.getRow(receivedSeason);
+            seasonRow.getCell(0).setCellValue(season);
+            seasonRow.getCell(1).setCellValue(startDate.toString());
+            seasonRow.getCell(2).setCellValue(endDate.toString());
+        }
+        save();
+    }
 
-                if (memberName.equals(member)) {
-                    for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+
+    public List<String> getSeasonDates(String season) {
+        Sheet seasonSheet = workbook.getSheet(SEASON_PROFILES_SHEET);
+        List<String> seasonDate = new ArrayList<>();
+        for (int i = 0; i < seasonList.length; i++) {
+            if (seasonList[i].equals(season)) {
+                receivedSeason = i + 1;
+                break;
+            }
+        }
+        if (receivedSeason == -1) {
+            return seasonDate;  // Return empty if season not found
+        }
+        Row dateRow = seasonSheet.getRow(receivedSeason);
+        if (dateRow != null) {
+            String start = dateRow.getCell(1).getStringCellValue();
+            String end = dateRow.getCell(2).getStringCellValue();
+            seasonDate.add(start);
+            seasonDate.add(end);
+        }
+        return seasonDate;
+    }
+
+    public List<Shift> getProfileShifts(String member, LocalDate startDate, LocalDate endDate) {
+        List<Shift> profileShifts = new ArrayList<>(); //Create a list of object Shift
+        Sheet memberSheet = workbook.getSheet(MEMBER_PROFILES_SHEET); // Get the sheet called member profile
+        if (memberSheet != null) {
+            for (Row row : memberSheet) { // for each row in memberSheet
+                if (row.getRowNum() == 0) continue; // Skip header row
+                String memberName = row.getCell(0).getStringCellValue(); //get the memberName 
+                DayOfWeek day = DayOfWeek.valueOf(row.getCell(1).getStringCellValue()); // get day
+                String startTime = row.getCell(2).getStringCellValue(); // get start time
+                String endTime = row.getCell(3).getStringCellValue();// get endtime
+                String group = row.getCell(4).getStringCellValue();// get group
+                String color = row.getCell(5).getStringCellValue();// get color
+
+                if (memberName.equals(member)) { //Makes sure we're updating the correct member
+                    for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) { //loops through the dates between start(inclusive) and end date(inclusive)
                         if (date.getDayOfWeek() == day) {
-                            profileShifts.add(new Shift(member, day.toString(), date.toString(), startTime, date.toString(), endTime, group, color));
+                            profileShifts.add(new Shift(member, day.toString(), date.toString(), startTime, date.toString(), endTime, group, color)); //add to shift
                         }
                     }
                 }

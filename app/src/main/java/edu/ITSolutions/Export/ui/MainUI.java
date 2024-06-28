@@ -18,6 +18,7 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -37,6 +38,14 @@ public class MainUI {
     private GroupPicker groupField;
     private DayOfWeekUI dayOfWeekUI;
     private SeasonUI seasonUI;
+
+    public MainUI() {
+        try {
+            profilesUtil = new ProfilesUtil();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public VBox createMainLayout() {
         VBox vbox = new VBox();
@@ -70,6 +79,12 @@ public class MainUI {
 
         startDatePicker = new DatePicker();
         endDatePicker = new DatePicker();
+        Label startDateLabel = new Label("Start Date:");
+        Label endDateLabel = new Label("End Date:");
+        startDateLabel.setVisible(false);
+        endDateLabel.setVisible(false);
+
+        Label seasonStartAndEnd = new Label();
 
         seasonUI = new SeasonUI();
 
@@ -98,7 +113,67 @@ public class MainUI {
             }
         });
 
-        HBox datesBox = new HBox(new Label("Start Date:"), startDatePicker, new Label("End Date:"), endDatePicker);
+        seasonUI.getSeasonComboBox().getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                List<String> receivedDates = profilesUtil.getSeasonDates(newValue);
+                if (!receivedDates.isEmpty()) {
+                    seasonStartAndEnd.setText(receivedDates.get(0) + " - " + receivedDates.get(1));
+                }
+
+                // Handle season selection change if needed
+                System.out.println("Season selected: " + newValue);
+            }
+        });
+
+
+        Button editSeasonsButton = new Button("Edit Season");
+        Button saveSeasonButton = new Button("Save Season");
+        saveSeasonButton.setVisible(false);
+        startDatePicker.setVisible(false);
+        endDatePicker.setVisible(false);
+
+
+        // StackPane to overlay buttons
+        StackPane toggleButtonsPane = new StackPane(editSeasonsButton, saveSeasonButton);
+
+
+
+
+        editSeasonsButton.setOnAction(e -> {
+            saveSeasonButton.setVisible(true);
+            startDatePicker.setVisible(true);
+            endDatePicker.setVisible(true);
+            startDateLabel.setVisible(true);
+            endDateLabel.setVisible(true);
+            editSeasonsButton.setVisible(false);
+            seasonStartAndEnd.setVisible(false);
+        });
+
+        
+        saveSeasonButton.setOnAction(e -> {
+            String selectedSeason = seasonUI.getSeasonComboBox().getSelectionModel().getSelectedItem();
+            LocalDate startDate = startDatePicker.getValue();
+            LocalDate endDate = endDatePicker.getValue();
+            if (selectedSeason != null && startDate != null && endDate != null) {
+                profilesUtil.saveSeason(selectedSeason, startDate, endDate);
+                List<String> receivedDates = profilesUtil.getSeasonDates(selectedSeason);
+                if (!receivedDates.isEmpty()) {
+                    seasonStartAndEnd.setText(receivedDates.get(0) + " - " + receivedDates.get(1));
+                }
+            }
+            startDatePicker.setVisible(false);
+            endDatePicker.setVisible(false);
+            startDateLabel.setVisible(false);
+            endDateLabel.setVisible(false);
+            saveSeasonButton.setVisible(false);
+            editSeasonsButton.setVisible(true);
+            seasonStartAndEnd.setVisible(true);
+        });
+
+        // HBox seasonEditabilityButtonsBox = new HBox(editSeasonsButton, saveSeasonButton);
+
+        HBox datesBox = new HBox(new Label("Season"), seasonUI, toggleButtonsPane, startDateLabel, startDatePicker, endDateLabel, endDatePicker);
+        // StackPane toggleDatesPane = new StackPane(datesBox, seasonStartAndEnd);
 
         startTimePicker = new CustomTimePicker();
         endTimePicker = new CustomTimePicker();
@@ -129,11 +204,9 @@ public class MainUI {
             }
             Member selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
             if (selectedMember != null) {
-                LocalDate startDate = startDatePicker.getValue();
-                LocalDate endDate = endDatePicker.getValue();
                 String selectedDay = dayOfWeekUI.getSelectedDay();
-                if (startDate != null && endDate != null && selectedDay != null) {
-                    profilesUtil.saveProfile(selectedMember.getName(), selectedDay, startTimePicker.getTime(), endTimePicker.getTime(), startDate, endDate, groupField.getGroup(), themeColorField.getColor(), seasonUI.getSeason());
+                if (selectedDay != null) {
+                    profilesUtil.saveProfile(selectedMember.getName(), selectedDay, startTimePicker.getTime(), endTimePicker.getTime(), groupField.getGroup(), themeColorField.getColor(), seasonUI.getSeason());
                     System.out.println("Profile saved");
                 }
             }
@@ -141,12 +214,12 @@ public class MainUI {
 
         Button applyProfilesButton = new Button("Apply Profiles");
         applyProfilesButton.setOnAction(e -> {
-            Member selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
+            Member selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem(); // Get the currently selected member
             if (selectedMember != null) {
-                LocalDate startDate = startDatePicker.getValue();
-                LocalDate endDate = endDatePicker.getValue();
+                LocalDate startDate = startDatePicker.getValue(); //Get the selected start date
+                LocalDate endDate = endDatePicker.getValue(); // Get the selected end date
                 if (startDate != null && endDate != null && profilesUtil != null) {
-                    List<Shift> profileShifts = profilesUtil.getProfileShifts(selectedMember.getName(), startDate, endDate);
+                    List<Shift> profileShifts = profilesUtil.getProfileShifts(selectedMember.getName(), startDate, endDate); // Implements the method getProfileShifts to retrieve a list of 
                     excelUtil.applyProfileShifts(selectedMember.getName(), profileShifts);
                     try {
                         excelUtil.save();
@@ -157,7 +230,7 @@ public class MainUI {
             }
         });
 
-        vbox.getChildren().addAll(gridPane, memberChoiceBox, dayOfWeekUI, datesBox, inputBox, memberShiftShower, generateShiftsButton, SaveProfileButton, applyProfilesButton);
+        vbox.getChildren().addAll(gridPane, memberChoiceBox, dayOfWeekUI, seasonStartAndEnd, datesBox, inputBox, SaveProfileButton, memberShiftShower, generateShiftsButton, applyProfilesButton);
 
         return vbox;
     }
@@ -187,7 +260,8 @@ public class MainUI {
     }
 
     private void generateShiftsForSelectedDays() {
-        Member selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
+        Member selectedMember;
+        selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
         if (selectedMember != null) {
             LocalDate startDate = startDatePicker.getValue();
             LocalDate endDate = endDatePicker.getValue();

@@ -21,4 +21,8 @@ public class SeasonUI extends HBox{
     public String getSeason() {
         return seasonComboBox.getValue();
     }
+
+    public ComboBox<String> getSeasonComboBox() {
+        return seasonComboBox;
+    }
 }
