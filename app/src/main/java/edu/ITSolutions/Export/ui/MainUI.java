@@ -76,7 +76,7 @@ public class MainUI {
         gridPane.add(importButton, 1, 0);
 
         memberChoiceBox = new ComboBox<>(memberList);
-        memberChoiceBox.setOnAction(e -> filterShiftsByMember());
+        memberChoiceBox.setOnAction(e -> updateShiftList());
 
         startDatePicker = new DatePicker();
         endDatePicker = new DatePicker();
@@ -109,8 +109,9 @@ public class MainUI {
                 if (profilesUtil != null) {
                     shiftList.setAll(profilesUtil.getProfileShifts(newValue.getName()));
                 }
-                memberShiftShower.setShiftList(shiftList);
-                memberShiftShower.refreshTables();
+                // memberShiftShower.setShiftList(shiftList);
+                // memberShiftShower.refreshTables();
+                updateShiftList();
             } else {
                 shiftList.clear();
             }
@@ -211,9 +212,9 @@ public class MainUI {
                                             endTimePicker.getTime(), positionUI.getPosition(),
                                             seasonUI.getSeason());
                     System.out.println("Profile saved");
-                    memberShiftShower.refreshTables();
                 }
             }
+            updateShiftList();
         });
 
         Button applyProfilesButton = new Button("Apply Profiles");
@@ -254,11 +255,11 @@ public class MainUI {
         }
     }
 
-    private void filterShiftsByMember() {
+    private void updateShiftList() {
         Member selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
-        if (selectedMember != null) {
-            ObservableList<Shift> filteredShifts = shiftList.filtered(shift -> shift.getMember().equals(selectedMember.getName()));
-            memberShiftShower.setShiftList(filteredShifts);
+        if (selectedMember != null && profilesUtil != null) {
+            shiftList.setAll(profilesUtil.getProfileShifts(selectedMember.getName()));
+            memberShiftShower.setShiftList(shiftList);
             memberShiftShower.refreshTables();
         }
     }
@@ -288,7 +289,7 @@ public class MainUI {
                         shiftList.add(newShift);
                     }
                 }
-                filterShiftsByMember();
+                updateShiftList();
             }
         }
     }
