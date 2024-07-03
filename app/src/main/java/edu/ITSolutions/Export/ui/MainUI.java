@@ -187,9 +187,9 @@ public class MainUI {
 
         memberShiftShower.setShiftList(shiftList);
 
-        Button generateShiftsButton = new Button("Generate Shifts");
-        generateShiftsButton.setOnAction(e -> {
-            generateShiftsForSelectedDays();
+        Button generateIndividualShiftButton = new Button("Generate Shift For Selected Member");
+        generateIndividualShiftButton.setOnAction(e -> {
+            // generateShiftsForSelectedDays();
             Member selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
             if (selectedMember != null) {
                 saveScheduleForMember(selectedMember);
@@ -217,8 +217,8 @@ public class MainUI {
             updateShiftList();
         });
 
-        Button applyProfilesButton = new Button("Apply Profiles");
-        applyProfilesButton.setOnAction(e -> {
+        Button generateGroupShiftButton = new Button("Generate Shifts For Selected Group");
+        generateGroupShiftButton.setOnAction(e -> {
             Member selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem(); // Get the currently selected member
             if (selectedMember != null) {
                 LocalDate startDate = startDatePicker.getValue(); //Get the selected start date
@@ -235,7 +235,7 @@ public class MainUI {
             }
         });
 
-        vbox.getChildren().addAll(gridPane, memberChoiceBox, dayOfWeekUI, seasonStartAndEnd, datesBox, inputBox, SaveProfileButton, memberShiftShower, generateShiftsButton, applyProfilesButton);
+        vbox.getChildren().addAll(gridPane, memberChoiceBox, dayOfWeekUI, seasonStartAndEnd, datesBox, inputBox, SaveProfileButton, memberShiftShower, generateIndividualShiftButton, generateGroupShiftButton);
 
         return vbox;
     }
@@ -264,33 +264,45 @@ public class MainUI {
         }
     }
 
-    private void generateShiftsForSelectedDays() {
-        Member selectedMember;
-        selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
-        if (selectedMember != null) {
-            LocalDate startDate = startDatePicker.getValue();
-            LocalDate endDate = endDatePicker.getValue();
-            String startTime = startTimePicker.getTime();
-            String endTime = endTimePicker.getTime();
-            String position = positionUI.getPosition();
-            // String group = "";//groupField.getGroup();
-            // String themeColor = "";//themeColorField.getColor();
-            String selectedDay = dayOfWeekUI.getSelectedDay();
-            String season = seasonUI.getSeason();
+    // private void generateShiftsForSelectedIndividual(){
 
-            if (startDate != null && endDate != null && !startDate.isAfter(endDate) &&
-                    startTime != null && !startTime.isEmpty() &&
-                    endTime != null && !endTime.isEmpty() &&
-                    position != null && !position.isEmpty()) {
+    // }
 
-                for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-                    if (selectedDay != null && selectedDay.equals(date.getDayOfWeek().toString())) {
-                        Shift newShift = new Shift(selectedMember.getName(), selectedDay, startTime, endTime, position, season);
-                        shiftList.add(newShift);
-                    }
-                }
-                updateShiftList();
-            }
-        }
-    }
+    // private void generateShiftsForSelectedGroup(){
+
+    // }
+
+    // private void generateAllShifts(){
+
+    // }
+
+    // private void generateShiftsForSelectedDays() {
+    //     Member selectedMember;
+    //     selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
+    //     if (selectedMember != null) {
+    //         LocalDate startDate = startDatePicker.getValue();
+    //         LocalDate endDate = endDatePicker.getValue();
+    //         String startTime = startTimePicker.getTime();
+    //         String endTime = endTimePicker.getTime();
+    //         String position = positionUI.getPosition();
+    //         // String group = "";//groupField.getGroup();
+    //         // String themeColor = "";//themeColorField.getColor();
+    //         String selectedDay = dayOfWeekUI.getSelectedDay();
+    //         String season = seasonUI.getSeason();
+
+    //         if (startDate != null && endDate != null && !startDate.isAfter(endDate) &&
+    //                 startTime != null && !startTime.isEmpty() &&
+    //                 endTime != null && !endTime.isEmpty() &&
+    //                 position != null && !position.isEmpty()) {
+
+    //             for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+    //                 if (selectedDay != null && selectedDay.equals(date.getDayOfWeek().toString())) {
+    //                     Shift newShift = new Shift(selectedMember.getName(), selectedDay, startTime, endTime, position, season);
+    //                     shiftList.add(newShift);
+    //                 }
+    //             }
+    //             updateShiftList();
+    //         }
+    //     }
+    // }
 }

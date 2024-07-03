@@ -17,7 +17,7 @@ public class ScheduleController {
 
     public void addSchedule(String member, String email, String group, String startDate, String startTime, String endDate, String endTime, String color) {
         Sheet sheet = workbook.getSheet("Shifts");
-        clearSheetExceptHeader();
+        // clearSheetExceptHeader();
         if (sheet == null) {
             sheet = workbook.createSheet("Shifts");
             Row headerRow = sheet.createRow(0);
