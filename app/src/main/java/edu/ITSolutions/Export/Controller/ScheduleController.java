@@ -17,6 +17,7 @@ public class ScheduleController {
 
     public void addSchedule(String member, String email, String group, String startDate, String startTime, String endDate, String endTime, String color) {
         Sheet sheet = workbook.getSheet("Shifts");
+        clearSheetExceptHeader();
         if (sheet == null) {
             sheet = workbook.createSheet("Shifts");
             Row headerRow = sheet.createRow(0);
@@ -68,18 +69,17 @@ public class ScheduleController {
         row.createCell(7).setCellValue(color);
     }
 
-    public void removeShiftsForMember(String member) {
+    public void clearSheetExceptHeader() {
         Sheet sheet = workbook.getSheet("Shifts");
         if (sheet != null) {
-            for (int i = sheet.getLastRowNum(); i >= 0; i--) {
+            // Start from the second row (index 1) to keep the header
+            for (int i = sheet.getLastRowNum(); i > 0; i--) {
                 Row row = sheet.getRow(i);
                 if (row != null) {
-                    Cell rowMember = row.getCell(0);
-                    if (rowMember != null && rowMember.getStringCellValue().equals(member)) {
-                        sheet.removeRow(row);
-                    }
+                    sheet.removeRow(row);
                 }
             }
         }
     }
+    
 }
