@@ -23,23 +23,11 @@ public class MemberShiftShower extends HBox {
         TableColumn<Shift, String> weekdayColumn = new TableColumn<>("Week Day");
         weekdayColumn.setCellValueFactory(new PropertyValueFactory<>("WeekDay"));
 
-        // TableColumn<Shift, String> startDateColumn = new TableColumn<>("Start Date");
-        // startDateColumn.setCellValueFactory(new PropertyValueFactory<>("startDate"));
-
         TableColumn<Shift, String> startTimeColumn = new TableColumn<>("Start Time");
         startTimeColumn.setCellValueFactory(new PropertyValueFactory<>("startTime"));
 
-        // TableColumn<Shift, String> endDateColumn = new TableColumn<>("End Date");
-        // endDateColumn.setCellValueFactory(new PropertyValueFactory<>("endDate"));
-
         TableColumn<Shift, String> endTimeColumn = new TableColumn<>("End Time");
         endTimeColumn.setCellValueFactory(new PropertyValueFactory<>("endTime"));
-
-        // TableColumn<Shift, String> groupColumn = new TableColumn<>("Group");
-        // groupColumn.setCellValueFactory(new PropertyValueFactory<>("group"));
-
-        // TableColumn<Shift, String> themeColorColumn = new TableColumn<>("Theme Color");
-        // themeColorColumn.setCellValueFactory(new PropertyValueFactory<>("themeColor"));
 
         TableColumn<Shift, String> positionColumn = new TableColumn<>("Position");
         positionColumn.setCellValueFactory(new PropertyValueFactory<>("position"));
