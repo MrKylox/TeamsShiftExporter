@@ -22,7 +22,7 @@ public class ProfilesUtil {
     private static final String FILE_NAME = DIRECTORY_PATH + "\\MemberProfiles.xlsx";
     private static final String MEMBER_PROFILES_SHEET = "MemberProfiles";
     private static final String SEASON_PROFILES_SHEET = "SeasonProfiles";
-    private static final String[] MEMBER_HEADERS = {"Member", "WeekDay", "Start Time", "End Time", "Position", "Semester"};
+    private static final String[] MEMBER_HEADERS = {"Member", "WeekDay", "Start Time", "End Time", "Position", "Season"};
     private static final String[] SEASON_HEADERS = {"Season", "Start Date", "End Date"};
     private final Workbook workbook;
     private final File profilesFile;

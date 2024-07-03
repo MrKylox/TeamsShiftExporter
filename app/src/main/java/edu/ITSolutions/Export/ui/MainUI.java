@@ -211,6 +211,7 @@ public class MainUI {
                                             endTimePicker.getTime(), positionUI.getPosition(),
                                             seasonUI.getSeason());
                     System.out.println("Profile saved");
+                    memberShiftShower.refreshTables();
                 }
             }
         });
