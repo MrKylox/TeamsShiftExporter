@@ -46,27 +46,27 @@ public class ExcelUtil {
         return members;
     }
 
-    public List<Shift> getShifts(Member member){
-        List<Shift> shifts = new ArrayList<>();
-        Sheet sheet = workbook.getSheet("Shifts");
-        if(sheet != null) {
-            for (Row row: sheet){
-                if(row.getRowNum() == 0) continue; //Skip header row
-                String memberReceived = row.getCell(0).getStringCellValue();
-                if (memberReceived.equals(member.getName())){
-                    String weekDay = row.getCell(1).getStringCellValue();
-                    String startDate = row.getCell(2).getStringCellValue();
-                    String startTime = row.getCell(3).getStringCellValue();
-                    String endDate = row.getCell(4).getStringCellValue();
-                    String endTime = row.getCell(5).getStringCellValue();
-                    String group = row.getCell(6).getStringCellValue();
-                    String themeColor = row.getCell(7).getStringCellValue();
-                    shifts.add(new Shift(memberReceived, weekDay, startDate, startTime, endDate, endTime, group, themeColor));
-                }
-            }
-        }
-        return shifts;
-    }
+    // public List<Shift> getShifts(Member member){
+    //     List<Shift> shifts = new ArrayList<>();
+    //     Sheet sheet = workbook.getSheet("Shifts");
+    //     if(sheet != null) {
+    //         for (Row row: sheet){
+    //             if(row.getRowNum() == 0) continue; //Skip header row
+    //             String memberReceived = row.getCell(0).getStringCellValue();
+    //             if (memberReceived.equals(member.getName())){
+    //                 String weekDay = row.getCell(1).getStringCellValue();
+    //                 String startDate = row.getCell(2).getStringCellValue();
+    //                 String startTime = row.getCell(3).getStringCellValue();
+    //                 String endDate = row.getCell(4).getStringCellValue();
+    //                 String endTime = row.getCell(5).getStringCellValue();
+    //                 String group = row.getCell(6).getStringCellValue();
+    //                 String themeColor = row.getCell(7).getStringCellValue();
+    //                 shifts.add(new Shift(memberReceived, weekDay, startDate, startTime, endDate, endTime, group, themeColor));
+    //             }
+    //         }
+    //     }
+    //     return shifts;
+    // }
 
     public int rowNumber(Row row){
         return row.getRowNum();
@@ -119,7 +119,7 @@ public class ExcelUtil {
             row.createCell(4).setCellValue(shift.getEndDate());
             row.createCell(5).setCellValue(shift.getEndTime());
             row.createCell(6).setCellValue(shift.getGroup());
-            row.createCell(7).setCellValue(shift.getThemeColor());
+            row.createCell(7).setCellValue(shift.getColor());
         }
     }
 }

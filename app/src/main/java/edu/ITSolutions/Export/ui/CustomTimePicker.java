@@ -1,29 +1,33 @@
 package edu.ITSolutions.Export.ui;
 
-import java.time.LocalTime;
-import java.util.stream.IntStream;
-
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.HBox;
 
 public class CustomTimePicker extends HBox {
+    private final ComboBox<String> hrminComboBox;
+    private final ComboBox<String> ampmComboBox;
+    private String hour;
+    private final String minute = "00";
+    private final String minute2 = "30";
+    private String time;
+    private String time2;
 
-    private ComboBox<String> hourComboBox;
-    private ComboBox<String> minuteComboBox;
 
     public CustomTimePicker() {
-        hourComboBox = new ComboBox<>();
-        minuteComboBox = new ComboBox<>();
-        IntStream.range(0, 24).forEach(hour -> hourComboBox.getItems().add(String.format("%02d", hour)));
-        IntStream.range(0, 60).forEach(minute -> minuteComboBox.getItems().add(String.format("%02d", minute)));
+        hrminComboBox = new ComboBox<>();
+        ampmComboBox = new ComboBox<>();
+        for(int i = 1; i<13;i++){
+            hour = Integer.toString(i);
+            time = hour + ":" +  minute;
+            time2 = hour + ":"+ minute2;
+            hrminComboBox.getItems().addAll(time, time2);
+        }
+        ampmComboBox.getItems().addAll("am", "pm");
 
-        hourComboBox.getSelectionModel().select(String.format("%02d", LocalTime.now().getHour()));
-        minuteComboBox.getSelectionModel().select(String.format("%02d", LocalTime.now().getMinute()));
-
-        this.getChildren().addAll(hourComboBox, minuteComboBox);
+        this.getChildren().addAll(hrminComboBox, ampmComboBox);
     }
 
     public String getTime() {
-        return hourComboBox.getValue() + ":" + minuteComboBox.getValue();
+        return hrminComboBox.getValue() + ampmComboBox.getValue();
     }
 }

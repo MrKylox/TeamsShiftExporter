@@ -34,10 +34,11 @@ public class MainUI {
     private DatePicker endDatePicker;
     private CustomTimePicker startTimePicker;
     private CustomTimePicker endTimePicker;
-    private ColorThemePicker themeColorField;
-    private GroupPicker groupField;
+    // private String themeColor;
+    // private String group;
     private DayOfWeekUI dayOfWeekUI;
     private SeasonUI seasonUI;
+    private PositionUI positionUI;
 
     public MainUI() {
         try {
@@ -88,6 +89,8 @@ public class MainUI {
 
         seasonUI = new SeasonUI();
 
+        positionUI = new PositionUI();
+
         memberChoiceBox.setConverter(new javafx.util.StringConverter<Member>() {
             @Override
             public String toString(Member member) {
@@ -102,9 +105,9 @@ public class MainUI {
 
         memberChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                shiftList.setAll(excelUtil.getShifts(newValue));
+                // shiftList.setAll(profilesUtil.getProfileShifts(newValue.getName(), startDatePicker.getValue(), endDatePicker.getValue()));
                 if (profilesUtil != null) {
-                    shiftList.setAll(profilesUtil.getProfileShifts(newValue.getName(), startDatePicker.getValue(), endDatePicker.getValue()));
+                    shiftList.setAll(profilesUtil.getProfileShifts(newValue.getName()));
                 }
                 memberShiftShower.setShiftList(shiftList);
                 memberShiftShower.refreshTables();
@@ -124,6 +127,7 @@ public class MainUI {
                 System.out.println("Season selected: " + newValue);
             }
         });
+
 
 
         Button editSeasonsButton = new Button("Edit Season");
@@ -170,18 +174,15 @@ public class MainUI {
             seasonStartAndEnd.setVisible(true);
         });
 
-        // HBox seasonEditabilityButtonsBox = new HBox(editSeasonsButton, saveSeasonButton);
-
         HBox datesBox = new HBox(new Label("Season"), seasonUI, toggleButtonsPane, startDateLabel, startDatePicker, endDateLabel, endDatePicker);
-        // StackPane toggleDatesPane = new StackPane(datesBox, seasonStartAndEnd);
 
         startTimePicker = new CustomTimePicker();
         endTimePicker = new CustomTimePicker();
-        themeColorField = new ColorThemePicker();
-        groupField = new GroupPicker();
+        // themeColorField = new ColorThemePicker();
+        // groupField = new GroupPicker();
 
         HBox inputBox = new HBox(new Label("Start Time:"), startTimePicker, new Label("End Time:"), endTimePicker,
-                new Label("Group:"), groupField, new Label("Theme Color:"), themeColorField);
+                new Label("Position:"), positionUI );
 
         memberShiftShower.setShiftList(shiftList);
 
@@ -206,7 +207,9 @@ public class MainUI {
             if (selectedMember != null) {
                 String selectedDay = dayOfWeekUI.getSelectedDay();
                 if (selectedDay != null) {
-                    profilesUtil.saveProfile(selectedMember.getName(), selectedDay, startTimePicker.getTime(), endTimePicker.getTime(), groupField.getGroup(), themeColorField.getColor(), seasonUI.getSeason());
+                    profilesUtil.saveProfile(selectedMember.getName(), selectedDay, startTimePicker.getTime(),
+                                            endTimePicker.getTime(), positionUI.getPosition(),
+                                            seasonUI.getSeason());
                     System.out.println("Profile saved");
                 }
             }
@@ -219,7 +222,7 @@ public class MainUI {
                 LocalDate startDate = startDatePicker.getValue(); //Get the selected start date
                 LocalDate endDate = endDatePicker.getValue(); // Get the selected end date
                 if (startDate != null && endDate != null && profilesUtil != null) {
-                    List<Shift> profileShifts = profilesUtil.getProfileShifts(selectedMember.getName(), startDate, endDate); // Implements the method getProfileShifts to retrieve a list of 
+                    List<Shift> profileShifts = profilesUtil.getProfileShifts(selectedMember.getName()); // Implements the method getProfileShifts to retrieve a list of 
                     excelUtil.applyProfileShifts(selectedMember.getName(), profileShifts);
                     try {
                         excelUtil.save();
@@ -240,7 +243,7 @@ public class MainUI {
             ScheduleController scheduleController = new ScheduleController(excelUtil.getWorkbook());
             for (Shift shift : shiftList) {
                 scheduleController.addSchedule(member.getName(), member.getEmail(), shift.getGroup(),
-                        shift.getStartDate(), shift.getStartTime(), shift.getEndDate(), shift.getEndTime(), shift.getThemeColor());
+                        shift.getStartDate(), shift.getStartTime(), shift.getEndDate(), shift.getEndTime(), shift.getColor());
             }
             try {
                 excelUtil.save();
@@ -267,19 +270,20 @@ public class MainUI {
             LocalDate endDate = endDatePicker.getValue();
             String startTime = startTimePicker.getTime();
             String endTime = endTimePicker.getTime();
-            String group = groupField.getGroup();
-            String themeColor = themeColorField.getColor();
+            String position = positionUI.getPosition();
+            // String group = "";//groupField.getGroup();
+            // String themeColor = "";//themeColorField.getColor();
             String selectedDay = dayOfWeekUI.getSelectedDay();
+            String season = seasonUI.getSeason();
 
             if (startDate != null && endDate != null && !startDate.isAfter(endDate) &&
                     startTime != null && !startTime.isEmpty() &&
                     endTime != null && !endTime.isEmpty() &&
-                    group != null && !group.isEmpty() &&
-                    themeColor != null && !themeColor.isEmpty()) {
+                    position != null && !position.isEmpty()) {
 
                 for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
                     if (selectedDay != null && selectedDay.equals(date.getDayOfWeek().toString())) {
-                        Shift newShift = new Shift(selectedMember.getName(), selectedDay, date.toString(), startTime, date.toString(), endTime, group, themeColor);
+                        Shift newShift = new Shift(selectedMember.getName(), selectedDay, startTime, endTime, position, season);
                         shiftList.add(newShift);
                     }
                 }

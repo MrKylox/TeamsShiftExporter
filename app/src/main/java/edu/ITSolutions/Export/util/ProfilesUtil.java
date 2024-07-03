@@ -22,12 +22,13 @@ public class ProfilesUtil {
     private static final String FILE_NAME = DIRECTORY_PATH + "\\MemberProfiles.xlsx";
     private static final String MEMBER_PROFILES_SHEET = "MemberProfiles";
     private static final String SEASON_PROFILES_SHEET = "SeasonProfiles";
-    private static final String[] MEMBER_HEADERS = {"Member", "WeekDay", "Start Time", "End Time", "Group", "Color"};
+    private static final String[] MEMBER_HEADERS = {"Member", "WeekDay", "Start Time", "End Time", "Position", "Semester"};
     private static final String[] SEASON_HEADERS = {"Season", "Start Date", "End Date"};
     private final Workbook workbook;
     private final File profilesFile;
     private static final String[] seasonList = {"Fall", "Winter", "Spring", "Summer"};
     private int receivedSeason = -1;
+    private String startEndDate;
 
     public ProfilesUtil() throws IOException {
         FileInputStream fileInputStream = new FileInputStream(FILE_NAME);
@@ -90,7 +91,7 @@ public class ProfilesUtil {
         }
     }
 
-    public void saveProfile(String member, String day, String startTime, String endTime, String group, String color, String season) {
+    public void saveProfile(String member, String day, String startTime, String endTime, String position, String season) {
         Sheet memberSheet = workbook.getSheet(MEMBER_PROFILES_SHEET);
         int lastRowNum = memberSheet.getLastRowNum();
         Row row = memberSheet.createRow(lastRowNum + 1);
@@ -98,15 +99,8 @@ public class ProfilesUtil {
         row.createCell(1).setCellValue(day);
         row.createCell(2).setCellValue(startTime);
         row.createCell(3).setCellValue(endTime);
-        row.createCell(4).setCellValue(group);
-        row.createCell(5).setCellValue(color);
-        
-        // Sheet seasonSheet = workbook.getSheet(SEASON_PROFILES_SHEET);
-        // Row seasonRow = seasonSheet.createRow(lastRowNum + 1);
-        // seasonRow.createCell(0).setCellValue(season);
-        // seasonRow.createCell(1).setCellValue(startDate.toString());
-        // seasonRow.createCell(2).setCellValue(endDate.toString());
-        
+        row.createCell(4).setCellValue(position);
+        row.createCell(5).setCellValue(season);
         save();
     }
 
@@ -150,25 +144,21 @@ public class ProfilesUtil {
         return seasonDate;
     }
 
-    public List<Shift> getProfileShifts(String member, LocalDate startDate, LocalDate endDate) {
+    public List<Shift> getProfileShifts(String member) {
         List<Shift> profileShifts = new ArrayList<>(); //Create a list of object Shift
         Sheet memberSheet = workbook.getSheet(MEMBER_PROFILES_SHEET); // Get the sheet called member profile
         if (memberSheet != null) {
             for (Row row : memberSheet) { // for each row in memberSheet
                 if (row.getRowNum() == 0) continue; // Skip header row
                 String memberName = row.getCell(0).getStringCellValue(); //get the memberName 
-                DayOfWeek day = DayOfWeek.valueOf(row.getCell(1).getStringCellValue()); // get day
+                DayOfWeek day = DayOfWeek.valueOf(row.getCell(1).getStringCellValue().toUpperCase()); // get day
                 String startTime = row.getCell(2).getStringCellValue(); // get start time
                 String endTime = row.getCell(3).getStringCellValue();// get endtime
-                String group = row.getCell(4).getStringCellValue();// get group
-                String color = row.getCell(5).getStringCellValue();// get color
+                String position = row.getCell(4).getStringCellValue(); // get position
+                String season = row.getCell(5).getStringCellValue();
 
                 if (memberName.equals(member)) { //Makes sure we're updating the correct member
-                    for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) { //loops through the dates between start(inclusive) and end date(inclusive)
-                        if (date.getDayOfWeek() == day) {
-                            profileShifts.add(new Shift(member, day.toString(), date.toString(), startTime, date.toString(), endTime, group, color)); //add to shift
-                        }
-                    }
+                    profileShifts.add(new Shift(member, day.toString(), startTime, endTime, position, season)); //add to shift
                 }
             }
         }
@@ -186,4 +176,10 @@ public class ProfilesUtil {
     public void close() throws IOException {
         workbook.close();
     }
+
+    // private String getStartEndDate(String season){
+
+    //     return 
+    // }
+
 }
