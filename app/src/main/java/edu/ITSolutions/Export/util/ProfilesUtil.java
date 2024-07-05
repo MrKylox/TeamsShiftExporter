@@ -47,6 +47,10 @@ public class ProfilesUtil {
         return workbook;
     }
 
+    public static String getMemberProfileSheetName(){
+        return MEMBER_PROFILES_SHEET;
+    }
+
     public static boolean doesFileExist() {
         File file = new File(FILE_NAME);
         return file.exists() && !file.isDirectory();
