@@ -122,4 +122,17 @@ public class ExcelUtil {
             row.createCell(7).setCellValue(shift.getColor());
         }
     }
+
+    public void clearSheetExceptHeader() {
+        Sheet sheet = workbook.getSheet("Shifts");
+        if (sheet != null) {
+            // Start from the second row (index 1) to keep the header
+            for (int i = sheet.getLastRowNum(); i > 0; i--) {
+                Row row = sheet.getRow(i);
+                if (row != null) {
+                    sheet.removeRow(row);
+                }
+            }
+        }
+    }
 }

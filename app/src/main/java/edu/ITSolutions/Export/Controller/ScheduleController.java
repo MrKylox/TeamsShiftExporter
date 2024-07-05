@@ -68,18 +68,5 @@ public class ScheduleController {
         row.createCell(6).setCellValue(endTime);
         row.createCell(7).setCellValue(color);
     }
-
-    public void clearSheetExceptHeader() {
-        Sheet sheet = workbook.getSheet("Shifts");
-        if (sheet != null) {
-            // Start from the second row (index 1) to keep the header
-            for (int i = sheet.getLastRowNum(); i > 0; i--) {
-                Row row = sheet.getRow(i);
-                if (row != null) {
-                    sheet.removeRow(row);
-                }
-            }
-        }
-    }
     
 }

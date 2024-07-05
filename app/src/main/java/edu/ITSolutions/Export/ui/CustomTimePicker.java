@@ -30,4 +30,5 @@ public class CustomTimePicker extends HBox {
     public String getTime() {
         return hrminComboBox.getValue() + ampmComboBox.getValue();
     }
+    
 }
