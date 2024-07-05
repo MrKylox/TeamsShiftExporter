@@ -45,28 +45,28 @@ public class ScheduleController {
                     rowStartTime != null && rowStartTime.getStringCellValue().equals(startTime) &&
                     rowEndDate != null && rowEndDate.getStringCellValue().equals(endDate) &&
                     rowEndTime != null && rowEndTime.getStringCellValue().equals(endTime)) {
-                    updateRow(rowItem, member, email, group, startDate, startTime, endDate, endTime, color);
+                    //updateRow(rowItem, member, email, group, startDate, startTime, endDate, endTime, color);
                     updated = true;
                     break;
                 }
             }
         }
 
-        if (!updated) {
-            Row rowItem = sheet.createRow(sheet.getLastRowNum() + 1);
-            updateRow(rowItem, member, email, group, startDate, startTime, endDate, endTime, color);
-        }
+        // if (!updated) {
+        //     Row rowItem = sheet.createRow(sheet.getLastRowNum() + 1);
+        //     updateRow(rowItem, member, email, group, startDate, startTime, endDate, endTime, color);
+        // }
     }
 
-    private void updateRow(Row row, String member, String email, String group, String startDate, String startTime, String endDate, String endTime, String color) {
-        row.createCell(0).setCellValue(member);
-        row.createCell(1).setCellValue(email);
-        row.createCell(2).setCellValue(group);
-        row.createCell(3).setCellValue(startDate);
-        row.createCell(4).setCellValue(startTime);
-        row.createCell(5).setCellValue(endDate);
-        row.createCell(6).setCellValue(endTime);
-        row.createCell(7).setCellValue(color);
-    }
+    // private void updateRow(Row row, String member, String email, String group, String startDate, String startTime, String endDate, String endTime, String color) {
+    //     row.createCell(0).setCellValue(member);
+    //     row.createCell(1).setCellValue(email);
+    //     row.createCell(2).setCellValue(group);
+    //     row.createCell(3).setCellValue(startDate);
+    //     row.createCell(4).setCellValue(startTime);
+    //     row.createCell(5).setCellValue(endDate);
+    //     row.createCell(6).setCellValue(endTime);
+    //     row.createCell(7).setCellValue(color);
+    // }
     
 }

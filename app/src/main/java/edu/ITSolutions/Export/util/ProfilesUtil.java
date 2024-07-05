@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +29,6 @@ public class ProfilesUtil {
     private final File profilesFile;
     private static final String[] seasonList = {"Fall", "Winter", "Spring", "Summer"};
     private int receivedSeason = -1;
-    private String startEndDate;
 
     public ProfilesUtil() throws IOException {
         FileInputStream fileInputStream = new FileInputStream(FILE_NAME);
@@ -126,27 +126,38 @@ public class ProfilesUtil {
     }
 
 
-    public List<String> getSeasonDates(String season) {
-        Sheet seasonSheet = workbook.getSheet(SEASON_PROFILES_SHEET);
-        List<String> seasonDate = new ArrayList<>();
-        for (int i = 0; i < seasonList.length; i++) {
-            if (seasonList[i].equals(season)) {
-                receivedSeason = i + 1;
-                break;
-            }
+public List<LocalDate> getSeasonDates(String season) {
+    Sheet seasonSheet = workbook.getSheet(SEASON_PROFILES_SHEET);
+    List<LocalDate> seasonDates = new ArrayList<>();
+    int receivedSeason2 = -1; // Using a local variable to avoid side effects 
+
+    for (int i = 0; i < seasonList.length; i++) {
+        if (seasonList[i].equalsIgnoreCase(season)) { // Case-insensitive comparison
+            receivedSeason2 = i + 1;
+            break;
         }
-        if (receivedSeason == -1) {
-            return seasonDate;  // Return empty if season not found
-        }
-        Row dateRow = seasonSheet.getRow(receivedSeason);
-        if (dateRow != null) {
-            String start = dateRow.getCell(1).getStringCellValue();
-            String end = dateRow.getCell(2).getStringCellValue();
-            seasonDate.add(start);
-            seasonDate.add(end);
-        }
-        return seasonDate;
     }
+
+    if (receivedSeason2 == -1) {
+        return seasonDates; // Return empty list if season not found
+    }
+
+    Row dateRow = seasonSheet.getRow(receivedSeason2);
+    if (dateRow != null) {
+        String startDateString = dateRow.getCell(1).getStringCellValue();
+        String endDateString = dateRow.getCell(2).getStringCellValue();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd"); // Adjust the pattern as needed
+
+        LocalDate start = LocalDate.parse(startDateString, formatter);
+        LocalDate end = LocalDate.parse(endDateString, formatter);
+
+        seasonDates.add(start);
+        seasonDates.add(end);
+    }
+
+    return seasonDates;
+}
 
     public List<Shift> getProfileShifts(String member) {
         List<Shift> profileShifts = new ArrayList<>(); //Create a list of object Shift
@@ -181,9 +192,20 @@ public class ProfilesUtil {
         workbook.close();
     }
 
-    // private String getStartEndDate(String season){
+    public String getSeason(String member){
+        Sheet memberSheet = workbook.getSheet(MEMBER_PROFILES_SHEET); // Get the sheet called member profile
+        if (memberSheet != null) {
+            for (Row row : memberSheet) { // for each row in memberSheet
+                if (row.getRowNum() == 0) continue; // Skip header row
+                String memberName = row.getCell(0).getStringCellValue(); //get the memberName 
+                String season = row.getCell(5).getStringCellValue();
 
-    //     return 
-    // }
+                if (memberName.equals(member)) { //Make sure we're using the correct member
+                    return season;
+                }
+            }
+        }
+        return null;
+    }
 
 }

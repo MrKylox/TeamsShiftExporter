@@ -3,6 +3,7 @@ package edu.ITSolutions.Export.ui;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import edu.ITSolutions.Export.Controller.ScheduleController;
@@ -119,7 +120,7 @@ public class MainUI {
 
         seasonUI.getSeasonComboBox().getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                List<String> receivedDates = profilesUtil.getSeasonDates(newValue);
+                List<LocalDate> receivedDates = profilesUtil.getSeasonDates(newValue);
                 if (!receivedDates.isEmpty()) {
                     seasonStartAndEnd.setText(receivedDates.get(0) + " - " + receivedDates.get(1));
                 }
@@ -161,7 +162,7 @@ public class MainUI {
             LocalDate endDate = endDatePicker.getValue();
             if (selectedSeason != null && startDate != null && endDate != null) {
                 profilesUtil.saveSeason(selectedSeason, startDate, endDate);
-                List<String> receivedDates = profilesUtil.getSeasonDates(selectedSeason);
+                List<LocalDate> receivedDates = profilesUtil.getSeasonDates(selectedSeason);
                 if (!receivedDates.isEmpty()) {
                     seasonStartAndEnd.setText(receivedDates.get(0) + " - " + receivedDates.get(1));
                 }
@@ -187,15 +188,6 @@ public class MainUI {
 
         memberShiftShower.setShiftList(shiftList);
 
-        Button generateIndividualShiftButton = new Button("Generate Shift For Selected Member");
-        generateIndividualShiftButton.setOnAction(e -> {
-            // generateShiftsForSelectedDays();
-            Member selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
-            if (selectedMember != null) {
-                saveScheduleForMember(selectedMember);
-            }
-        });
-
         Button SaveProfileButton = new Button("Save Profile");
         SaveProfileButton.setOnAction(e -> {
             try {
@@ -215,6 +207,15 @@ public class MainUI {
                 }
             }
             updateShiftList();
+        });
+
+        Button generateIndividualShiftButton = new Button("Generate Shift For Selected Member");
+        generateIndividualShiftButton.setOnAction(e -> {
+            // generateShiftsForSelectedDays();
+            Member selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
+            if (selectedMember != null) {
+                saveScheduleForMember(selectedMember);
+            }
         });
 
         Button generateGroupShiftButton = new Button("Generate Shifts For Selected Group");
@@ -259,8 +260,10 @@ public class MainUI {
         Member selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
         if (selectedMember != null && profilesUtil != null) {
             shiftList.setAll(profilesUtil.getProfileShifts(selectedMember.getName()));
-            memberShiftShower.setShiftList(shiftList);
-            memberShiftShower.refreshTables();
+            //sorted here first
+            //get the returned shiftList
+            memberShiftShower.setShiftList(shiftList); //we set the sorted list in the table View
+            memberShiftShower.refreshTables(); // table refreshed
         }
     }
 
@@ -276,33 +279,41 @@ public class MainUI {
 
     // }
 
-    // private void generateShiftsForSelectedDays() {
-    //     Member selectedMember;
-    //     selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
-    //     if (selectedMember != null) {
-    //         LocalDate startDate = startDatePicker.getValue();
-    //         LocalDate endDate = endDatePicker.getValue();
-    //         String startTime = startTimePicker.getTime();
-    //         String endTime = endTimePicker.getTime();
-    //         String position = positionUI.getPosition();
-    //         // String group = "";//groupField.getGroup();
-    //         // String themeColor = "";//themeColorField.getColor();
-    //         String selectedDay = dayOfWeekUI.getSelectedDay();
-    //         String season = seasonUI.getSeason();
+    private void generateShiftForSelectedMember() {
+        List<LocalDate> receivedDates = new ArrayList<>();
+        Member selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
+        try {
+            profilesUtil = new ProfilesUtil();
 
-    //         if (startDate != null && endDate != null && !startDate.isAfter(endDate) &&
-    //                 startTime != null && !startTime.isEmpty() &&
-    //                 endTime != null && !endTime.isEmpty() &&
-    //                 position != null && !position.isEmpty()) {
+            System.out.println("Profile Creation Started");
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        if (selectedMember != null) {//currently here at the moment nothign further
+            String season = profilesUtil.getSeason(selectedMember.getName());
+            receivedDates = profilesUtil.getSeasonDates(season);
+            LocalDate startDate = receivedDates.get(0);
+            LocalDate endDate = receivedDates.get(1);
+            String startTime = startTimePicker.getTime();
+            String endTime = endTimePicker.getTime();
+            String position = positionUI.getPosition();
+            // String group = "";//groupField.getGroup();
+            // String themeColor = "";//themeColorField.getColor();
+            String selectedDay = dayOfWeekUI.getSelectedDay();
 
-    //             for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-    //                 if (selectedDay != null && selectedDay.equals(date.getDayOfWeek().toString())) {
-    //                     Shift newShift = new Shift(selectedMember.getName(), selectedDay, startTime, endTime, position, season);
-    //                     shiftList.add(newShift);
-    //                 }
-    //             }
-    //             updateShiftList();
-    //         }
-    //     }
-    // }
+            if (startDate != null && endDate != null && !startDate.isAfter(endDate) &&
+                    startTime != null && !startTime.isEmpty() &&
+                    endTime != null && !endTime.isEmpty() &&
+                    position != null && !position.isEmpty()) {
+
+                for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+                    if (selectedDay != null && selectedDay.equals(date.getDayOfWeek().toString())) {
+                        Shift newShift = new Shift(selectedMember.getName(), selectedDay, startTime, endTime, position, season);
+                        shiftList.add(newShift);
+                    }
+                }
+                updateShiftList();
+            }
+        }
+    }
 }
