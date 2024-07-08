@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.ITSolutions.Export.Controller.ProfileController;
 import edu.ITSolutions.Export.Controller.ScheduleController;
 import edu.ITSolutions.Export.Member;
 import edu.ITSolutions.Export.Shift;
@@ -23,7 +24,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import edu.ITSolutions.Export.Controller.ProfileController;
 
 public class MainUI {
     private ExcelUtil excelUtil;
@@ -108,7 +108,6 @@ public class MainUI {
         memberChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 if (profilesUtil != null) {
-                    // shiftList.setAll(profilesUtil.getProfileShifts(newValue.getName()));
                     updateShiftList();
                 }
  
@@ -179,8 +178,6 @@ public class MainUI {
 
         startTimePicker = new CustomTimePicker();
         endTimePicker = new CustomTimePicker();
-        // themeColorField = new ColorThemePicker();
-        // groupField = new GroupPicker();
 
         HBox inputBox = new HBox(new Label("Start Time:"), startTimePicker, new Label("End Time:"), endTimePicker,
                 new Label("Position:"), positionUI );
@@ -210,10 +207,8 @@ public class MainUI {
 
         Button generateIndividualShiftButton = new Button("Generate Shift For Selected Member");
         generateIndividualShiftButton.setOnAction(e -> {
-            // generateShiftsForSelectedDays();
             Member selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
             if (selectedMember != null) {
-                // saveScheduleForMember(selectedMember);
                 generateShiftForSelectedMember(selectedMember);
             }
         });
@@ -241,21 +236,6 @@ public class MainUI {
         return vbox;
     }
 
-    // private void saveScheduleForMember(Member member) {
-    //     if (excelUtil != null) {
-    //         ScheduleController scheduleController = new ScheduleController(excelUtil.getWorkbook());
-    //         for (Shift shift : shiftList) {
-    //             scheduleController.addSchedule(member.getName(), member.getEmail(), shift.getGroup(),
-    //                     shift.getStartDate(), shift.getStartTime(), shift.getEndDate(), shift.getEndTime(), shift.getColor());
-    //         }
-    //         try {
-    //             excelUtil.save();
-    //         } catch (IOException e) {
-    //             e.printStackTrace();
-    //         }
-    //     }
-    // }
-
     private void updateShiftList() {
         Member selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
         if (selectedMember != null && profilesUtil != null) {
@@ -264,11 +244,6 @@ public class MainUI {
             System.out.printf("New shift\n",newShifts);
             memberShiftShower.setShiftList(shiftList);
             memberShiftShower.refreshTables();
-            // try {
-            //     excelUtil.save();
-            // } catch (IOException e) {
-            //     e.printStackTrace();
-            // }
         }
     }
 
