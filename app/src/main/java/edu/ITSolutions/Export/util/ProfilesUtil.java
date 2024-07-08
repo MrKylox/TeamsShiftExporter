@@ -180,6 +180,31 @@ public List<LocalDate> getSeasonDates(String season) {
         return profileShifts;
     }
 
+
+    public List<Shift> getSchedule(String member){
+        List<Shift> schedules = new ArrayList<>();
+        Sheet memberSheet = workbook.getSheet(MEMBER_PROFILES_SHEET); // Get the sheet called member profile
+        if (memberSheet != null) {
+            for (Row row : memberSheet) { // for each row in memberSheet
+                if (row.getRowNum() == 0) continue; // Skip header row
+                String memberName = row.getCell(0).getStringCellValue(); //get the memberName 
+                DayOfWeek day = DayOfWeek.valueOf(row.getCell(1).getStringCellValue().toUpperCase()); // get day
+                String startTime = row.getCell(2).getStringCellValue(); // get start time
+                String endTime = row.getCell(3).getStringCellValue();// get endtime
+                String position = row.getCell(4).getStringCellValue(); // get position
+                String season = row.getCell(5).getStringCellValue(); // get season
+
+                if (memberName.equals(member)) { //Makes sure we're updating the correct member
+                    schedules.add(new Shift(member, day.toString(), startTime, endTime, position, season)); //add to shift
+                }
+            }
+        }
+
+        return schedules;
+    }
+
+
+
     public void save() {
         try (FileOutputStream fileOut = new FileOutputStream(profilesFile)) {
             workbook.write(fileOut);
@@ -190,22 +215,6 @@ public List<LocalDate> getSeasonDates(String season) {
 
     public void close() throws IOException {
         workbook.close();
-    }
-
-    public String getSeason(String member){
-        Sheet memberSheet = workbook.getSheet(MEMBER_PROFILES_SHEET); // Get the sheet called member profile
-        if (memberSheet != null) {
-            for (Row row : memberSheet) { // for each row in memberSheet
-                if (row.getRowNum() == 0) continue; // Skip header row
-                String memberName = row.getCell(0).getStringCellValue(); //get the memberName 
-                String season = row.getCell(5).getStringCellValue();
-
-                if (memberName.equals(member)) { //Make sure we're using the correct member
-                    return season;
-                }
-            }
-        }
-        return null;
     }
 
 }

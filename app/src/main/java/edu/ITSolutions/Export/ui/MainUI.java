@@ -35,8 +35,6 @@ public class MainUI {
     private DatePicker endDatePicker;
     private CustomTimePicker startTimePicker;
     private CustomTimePicker endTimePicker;
-    // private String themeColor;
-    // private String group;
     private DayOfWeekUI dayOfWeekUI;
     private SeasonUI seasonUI;
     private PositionUI positionUI;
@@ -106,13 +104,11 @@ public class MainUI {
 
         memberChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                // shiftList.setAll(profilesUtil.getProfileShifts(newValue.getName(), startDatePicker.getValue(), endDatePicker.getValue()));
                 if (profilesUtil != null) {
-                    shiftList.setAll(profilesUtil.getProfileShifts(newValue.getName()));
+                    // shiftList.setAll(profilesUtil.getProfileShifts(newValue.getName()));
+                    updateShiftList();
                 }
-                // memberShiftShower.setShiftList(shiftList);
-                // memberShiftShower.refreshTables();
-                updateShiftList();
+ 
             } else {
                 shiftList.clear();
             }
@@ -214,7 +210,8 @@ public class MainUI {
             // generateShiftsForSelectedDays();
             Member selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
             if (selectedMember != null) {
-                saveScheduleForMember(selectedMember);
+                // saveScheduleForMember(selectedMember);
+                generateShiftForSelectedMember(selectedMember);
             }
         });
 
@@ -241,20 +238,20 @@ public class MainUI {
         return vbox;
     }
 
-    private void saveScheduleForMember(Member member) {
-        if (excelUtil != null) {
-            ScheduleController scheduleController = new ScheduleController(excelUtil.getWorkbook());
-            for (Shift shift : shiftList) {
-                scheduleController.addSchedule(member.getName(), member.getEmail(), shift.getGroup(),
-                        shift.getStartDate(), shift.getStartTime(), shift.getEndDate(), shift.getEndTime(), shift.getColor());
-            }
-            try {
-                excelUtil.save();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+    // private void saveScheduleForMember(Member member) {
+    //     if (excelUtil != null) {
+    //         ScheduleController scheduleController = new ScheduleController(excelUtil.getWorkbook());
+    //         for (Shift shift : shiftList) {
+    //             scheduleController.addSchedule(member.getName(), member.getEmail(), shift.getGroup(),
+    //                     shift.getStartDate(), shift.getStartTime(), shift.getEndDate(), shift.getEndTime(), shift.getColor());
+    //         }
+    //         try {
+    //             excelUtil.save();
+    //         } catch (IOException e) {
+    //             e.printStackTrace();
+    //         }
+    //     }
+    // }
 
     private void updateShiftList() {
         Member selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
@@ -267,10 +264,6 @@ public class MainUI {
         }
     }
 
-    // private void generateShiftsForSelectedIndividual(){
-
-    // }
-
     // private void generateShiftsForSelectedGroup(){
 
     // }
@@ -279,41 +272,54 @@ public class MainUI {
 
     // }
 
-    private void generateShiftForSelectedMember() {
+    private void generateShiftForSelectedMember(Member member) {
         List<LocalDate> receivedDates = new ArrayList<>();
+        List<Shift> receivedSchedule = new ArrayList<>();
         Member selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
+        ScheduleController scheduleController = null;
         try {
             profilesUtil = new ProfilesUtil();
-
+            scheduleController = new ScheduleController(excelUtil.getWorkbook());
             System.out.println("Profile Creation Started");
         } catch (IOException e1) {
             e1.printStackTrace();
         }
-        if (selectedMember != null) {//currently here at the moment nothign further
-            String season = profilesUtil.getSeason(selectedMember.getName());
-            receivedDates = profilesUtil.getSeasonDates(season);
-            LocalDate startDate = receivedDates.get(0);
-            LocalDate endDate = receivedDates.get(1);
-            String startTime = startTimePicker.getTime();
-            String endTime = endTimePicker.getTime();
-            String position = positionUI.getPosition();
-            // String group = "";//groupField.getGroup();
-            // String themeColor = "";//themeColorField.getColor();
-            String selectedDay = dayOfWeekUI.getSelectedDay();
+        if (selectedMember != null && scheduleController != null) {
+            receivedSchedule = profilesUtil.getSchedule(selectedMember.getName());
+            for (Shift shift : receivedSchedule) {
+                receivedDates = profilesUtil.getSeasonDates(shift.getSeason());
+                String startTime = startTimePicker.getTime();
+                String endTime = endTimePicker.getTime();
+                String position = positionUI.getPosition();
+                String selectedDay = dayOfWeekUI.getSelectedDay();
+    
+                if (receivedDates.size() >= 2) {  // Ensure we have both start and end dates
+                    System.out.println("Received dates is greator than 2");
+                    LocalDate startDate = receivedDates.get(0);
+                    LocalDate endDate = receivedDates.get(1);
+    
+                    String startDateString = startDate.toString();  // Convert LocalDate to String
+                    String endDateString = endDate.toString();      // Convert LocalDate to String
+    
+                    if (startDate != null && endDate != null && !startDate.isAfter(endDate) &&
+                            startTime != null && !startTime.isEmpty() &&
+                            endTime != null && !endTime.isEmpty() &&
+                            position != null && !position.isEmpty()) {
 
-            if (startDate != null && endDate != null && !startDate.isAfter(endDate) &&
-                    startTime != null && !startTime.isEmpty() &&
-                    endTime != null && !endTime.isEmpty() &&
-                    position != null && !position.isEmpty()) {
-
-                for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-                    if (selectedDay != null && selectedDay.equals(date.getDayOfWeek().toString())) {
-                        Shift newShift = new Shift(selectedMember.getName(), selectedDay, startTime, endTime, position, season);
-                        shiftList.add(newShift);
+    
+                        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+                            if (selectedDay != null && selectedDay.equalsIgnoreCase(date.getDayOfWeek().toString())) {
+                                System.out.println("Adding shifts to schedule");
+                                Shift newShift = new Shift(selectedMember.getName(), selectedMember.getEmail(), shift.getGroup(), startDateString, startTime, endDateString, endTime, shift.getColor());
+                                shiftList.add(newShift);
+                                scheduleController.addSchedule(selectedMember.getName(), selectedMember.getEmail(), shift.getGroup(), startDateString, startTime, endDateString, endTime, shift.getColor());
+                            }
+                        }
+                        updateShiftList();
                     }
                 }
-                updateShiftList();
             }
         }
     }
+    
 }

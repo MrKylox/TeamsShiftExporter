@@ -14,7 +14,7 @@ public class Shift {
     private String themeColor;
     private String season;
 
-    public Shift(String member, String weekDay, String startTime, String endTime, String position,String season){
+    public Shift(String member, String weekDay, String startTime, String endTime, String position, String season){
         this.member = member;
         this.weekDay = weekDay;
         this.startTime = startTime;
