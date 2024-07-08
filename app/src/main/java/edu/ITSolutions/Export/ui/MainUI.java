@@ -288,24 +288,23 @@ public class MainUI {
             receivedSchedule = profilesUtil.getSchedule(selectedMember.getName());
             for (Shift shift : receivedSchedule) {
                 receivedDates = profilesUtil.getSeasonDates(shift.getSeason());
-                String startTime = startTimePicker.getTime();
-                String endTime = endTimePicker.getTime();
-                String position = positionUI.getPosition();
-                String selectedDay = dayOfWeekUI.getSelectedDay();
+                String startTime = shift.getStartTime();
+                String endTime = shift.getEndTime();
+                String position = shift.getPosition();
+                String selectedDay = shift.getWeekDay();
     
                 if (receivedDates.size() >= 2) {  // Ensure we have both start and end dates
-                    System.out.println("Received dates is greator than 2");
+                    System.out.println("Received dates is greater than 2");
                     LocalDate startDate = receivedDates.get(0);
                     LocalDate endDate = receivedDates.get(1);
     
                     String startDateString = startDate.toString();  // Convert LocalDate to String
                     String endDateString = endDate.toString();      // Convert LocalDate to String
-    
-                    if (startDate != null && endDate != null && !startDate.isAfter(endDate) &&
+                    // print
+                    if (!startDate.isAfter(endDate) &&
                             startTime != null && !startTime.isEmpty() &&
                             endTime != null && !endTime.isEmpty() &&
                             position != null && !position.isEmpty()) {
-
     
                         for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
                             if (selectedDay != null && selectedDay.equalsIgnoreCase(date.getDayOfWeek().toString())) {

@@ -2,7 +2,7 @@ package edu.ITSolutions.Export.util;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.FileOutputStream; // Missing import
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,35 +46,12 @@ public class ExcelUtil {
         return members;
     }
 
-    // public List<Shift> getShifts(Member member){
-    //     List<Shift> shifts = new ArrayList<>();
-    //     Sheet sheet = workbook.getSheet("Shifts");
-    //     if(sheet != null) {
-    //         for (Row row: sheet){
-    //             if(row.getRowNum() == 0) continue; //Skip header row
-    //             String memberReceived = row.getCell(0).getStringCellValue();
-    //             if (memberReceived.equals(member.getName())){
-    //                 String weekDay = row.getCell(1).getStringCellValue();
-    //                 String startDate = row.getCell(2).getStringCellValue();
-    //                 String startTime = row.getCell(3).getStringCellValue();
-    //                 String endDate = row.getCell(4).getStringCellValue();
-    //                 String endTime = row.getCell(5).getStringCellValue();
-    //                 String group = row.getCell(6).getStringCellValue();
-    //                 String themeColor = row.getCell(7).getStringCellValue();
-    //                 shifts.add(new Shift(memberReceived, weekDay, startDate, startTime, endDate, endTime, group, themeColor));
-    //             }
-    //         }
-    //     }
-    //     return shifts;
-    // }
-
     public int rowNumber(Row row){
         return row.getRowNum();
     }
 
     public String getEmail(Row row){
-        String email = row.getCell(1).getStringCellValue();
-        return  email;
+        return row.getCell(1).getStringCellValue();
     }
 
     public Sheet getSheet(String name) {
