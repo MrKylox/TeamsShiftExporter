@@ -46,10 +46,6 @@ public class ExcelUtil {
         return members;
     }
 
-    public int rowNumber(Row row){
-        return row.getRowNum();
-    }
-
     public String getEmail(Row row){
         return row.getCell(1).getStringCellValue();
     }

@@ -264,6 +264,11 @@ public class MainUI {
             System.out.printf("New shift\n",newShifts);
             memberShiftShower.setShiftList(shiftList);
             memberShiftShower.refreshTables();
+            // try {
+            //     excelUtil.save();
+            // } catch (IOException e) {
+            //     e.printStackTrace();
+            // }
         }
     }
 
@@ -283,7 +288,8 @@ public class MainUI {
         try {
             profilesUtil = new ProfilesUtil();
             scheduleController = new ScheduleController(excelUtil.getWorkbook());
-            System.out.println("Profile Creation Started");
+            excelUtil.clearSheetExceptHeader();
+            System.out.println("Schedule Creation Started");
         } catch (IOException e1) {
             e1.printStackTrace();
         }
@@ -300,9 +306,7 @@ public class MainUI {
                     System.out.println("Received dates is greater than 2");
                     LocalDate startDate = receivedDates.get(0);
                     LocalDate endDate = receivedDates.get(1);
-    
-                    String startDateString = startDate.toString();  // Convert LocalDate to String
-                    String endDateString = endDate.toString();      // Convert LocalDate to String
+
                     // print
                     if (!startDate.isAfter(endDate) &&
                             startTime != null && !startTime.isEmpty() &&
@@ -311,13 +315,15 @@ public class MainUI {
     
                         for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
                             if (selectedDay != null && selectedDay.equalsIgnoreCase(date.getDayOfWeek().toString())) {
-                                System.out.println("Adding shifts to schedule");
-                                Shift newShift = new Shift(selectedMember.getName(), selectedMember.getEmail(), shift.getGroup(), startDateString, startTime, endDateString, endTime, shift.getColor());
-                                shiftList.add(newShift);
-                                scheduleController.addSchedule(selectedMember.getName(), selectedMember.getEmail(), shift.getGroup(), startDateString, startTime, endDateString, endTime, shift.getColor());
+                                System.out.println("Adding shifts to schedule: " + selectedDay);
+                                scheduleController.addSchedule(selectedMember.getName(), selectedMember.getEmail(), shift.getGroup(), date.toString(), startTime, date.toString(), endTime, shift.getColor());
+                                try {
+                                    excelUtil.save();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         }
-                        updateShiftList();
                     }
                 }
             }
