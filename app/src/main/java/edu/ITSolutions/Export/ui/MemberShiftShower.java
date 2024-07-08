@@ -52,6 +52,7 @@ public class MemberShiftShower extends HBox {
     }
 
     public void refreshTables() {
+        
         tableView.refresh();
     }
 }

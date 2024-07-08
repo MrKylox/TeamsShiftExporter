@@ -23,6 +23,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import edu.ITSolutions.Export.Controller.ProfileController;
 
 public class MainUI {
     private ExcelUtil excelUtil;
@@ -38,10 +39,12 @@ public class MainUI {
     private DayOfWeekUI dayOfWeekUI;
     private SeasonUI seasonUI;
     private PositionUI positionUI;
+    private ProfileController profileController;
 
     public MainUI() {
         try {
             profilesUtil = new ProfilesUtil();
+            profileController = new ProfileController();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -222,7 +225,7 @@ public class MainUI {
                 LocalDate startDate = startDatePicker.getValue(); //Get the selected start date
                 LocalDate endDate = endDatePicker.getValue(); // Get the selected end date
                 if (startDate != null && endDate != null && profilesUtil != null) {
-                    List<Shift> profileShifts = profilesUtil.getProfileShifts(selectedMember.getName()); // Implements the method getProfileShifts to retrieve a list of 
+                    List<Shift> profileShifts = profilesUtil.getProfileShifts(selectedMember.getName()); // Implements the method getProfileShifts to retrieve a list of the member
                     excelUtil.applyProfileShifts(selectedMember.getName(), profileShifts);
                     try {
                         excelUtil.save();
@@ -257,10 +260,10 @@ public class MainUI {
         Member selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
         if (selectedMember != null && profilesUtil != null) {
             shiftList.setAll(profilesUtil.getProfileShifts(selectedMember.getName()));
-            //sorted here first
-            //get the returned shiftList
-            memberShiftShower.setShiftList(shiftList); //we set the sorted list in the table View
-            memberShiftShower.refreshTables(); // table refreshed
+            List<Shift> newShifts = profileController.sortList(profilesUtil.getProfileShifts(selectedMember.getName()));
+            System.out.printf("New shift\n",newShifts);
+            memberShiftShower.setShiftList(shiftList);
+            memberShiftShower.refreshTables();
         }
     }
 
