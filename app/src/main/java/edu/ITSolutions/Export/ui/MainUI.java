@@ -184,7 +184,7 @@ public class MainUI {
 
         memberShiftShower.setShiftList(shiftList);
 
-        Button SaveProfileButton = new Button("Save Profile");
+        Button SaveProfileButton = new Button("Save Shift");
         SaveProfileButton.setOnAction(e -> {
             try {
                 profilesUtil = new ProfilesUtil();
@@ -205,6 +205,21 @@ public class MainUI {
             updateShiftList();
         });
 
+        Button deleteShiftButton = new Button("Delete Shift");
+        deleteShiftButton.setOnAction(e -> {
+            Shift selectedShift = memberShiftShower.getSelectedShift();
+            if (selectedShift != null) {
+                System.out.println(selectedShift);
+                profilesUtil.deleteShift(selectedShift);
+                profilesUtil.save();
+                updateShiftList();
+                System.out.println(selectedShift);
+                System.out.println("Shift deleted");
+            }
+        });
+
+        HBox profileBox = new HBox(SaveProfileButton, deleteShiftButton); 
+
         Button generateIndividualShiftButton = new Button("Generate Shift For Selected Member");
         generateIndividualShiftButton.setOnAction(e -> {
             Member selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
@@ -215,23 +230,18 @@ public class MainUI {
 
         Button generateGroupShiftButton = new Button("Generate Shifts For Selected Group");
         generateGroupShiftButton.setOnAction(e -> {
-            Member selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem(); // Get the currently selected member
-            if (selectedMember != null) {
-                LocalDate startDate = startDatePicker.getValue(); //Get the selected start date
-                LocalDate endDate = endDatePicker.getValue(); // Get the selected end date
-                if (startDate != null && endDate != null && profilesUtil != null) {
-                    List<Shift> profileShifts = profilesUtil.getProfileShifts(selectedMember.getName()); // Implements the method getProfileShifts to retrieve a list of the member
-                    excelUtil.applyProfileShifts(selectedMember.getName(), profileShifts);
-                    try {
-                        excelUtil.save();
-                    } catch (IOException ioException) {
-                        ioException.printStackTrace();
-                    }
-                }
-            }
+            //Still need to implement 
         });
 
-        vbox.getChildren().addAll(gridPane, memberChoiceBox, dayOfWeekUI, seasonStartAndEnd, datesBox, inputBox, SaveProfileButton, memberShiftShower, generateIndividualShiftButton, generateGroupShiftButton);
+
+        Button generateAllShiftsButton = new Button("Generate Shifts For All Members");
+        generateAllShiftsButton.setOnAction(e -> {
+            generateShiftsForAllMembers();
+        });
+
+       
+
+        vbox.getChildren().addAll(gridPane, memberChoiceBox, dayOfWeekUI, seasonStartAndEnd, datesBox, inputBox, profileBox, memberShiftShower, generateIndividualShiftButton, generateGroupShiftButton, generateAllShiftsButton);
 
         return vbox;
     }
@@ -251,14 +261,64 @@ public class MainUI {
 
     // }
 
-    // private void generateAllShifts(){
+    private void generateShiftsForAllMembers() {
+        List<Member> allMembers = memberList;  // Use the member list from your class
+        ScheduleController scheduleController = null;
+        
+        try {
+            profilesUtil = new ProfilesUtil();
+            scheduleController = new ScheduleController(excelUtil.getWorkbook());
+            excelUtil.clearSheetExceptHeader();
+            System.out.println("Schedule Creation Started");
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
 
-    // }
+        if (scheduleController != null) {
+            for (Member member : allMembers) {
+                List<LocalDate> receivedDates = new ArrayList<>();
+                List<Shift> receivedSchedule = profilesUtil.getSchedule(member.getName());
 
-    private void generateShiftForSelectedMember(Member member) {
+                for (Shift shift : receivedSchedule) {
+                    receivedDates = profilesUtil.getSeasonDates(shift.getSeason());
+                    String startTime = shift.getStartTime();
+                    String endTime = shift.getEndTime();
+                    String position = shift.getPosition();
+                    String selectedDay = shift.getWeekDay();
+
+                    if (receivedDates.size() >= 2) {  // Ensure we have both start and end dates
+                        System.out.println("Received dates is greater than 2 for member: " + member.getName());
+                        LocalDate startDate = receivedDates.get(0);
+                        LocalDate endDate = receivedDates.get(1);
+
+                        if (!startDate.isAfter(endDate) &&
+                                startTime != null && !startTime.isEmpty() &&
+                                endTime != null && !endTime.isEmpty() &&
+                                position != null && !position.isEmpty()) {
+
+                            for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+                                if (selectedDay != null && selectedDay.equalsIgnoreCase(date.getDayOfWeek().toString())) {
+                                    System.out.println("Adding shifts to schedule: " + selectedDay + " for member: " + member.getName());
+                                    scheduleController.addSchedule(member.getName(), member.getEmail(), shift.getGroup(), date.toString(), startTime, date.toString(), endTime, shift.getColor());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            try {
+                excelUtil.save();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    private void generateShiftForSelectedMember(Member selectedMember) {
         List<LocalDate> receivedDates = new ArrayList<>();
         List<Shift> receivedSchedule = new ArrayList<>();
-        Member selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
+        // Member selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
         ScheduleController scheduleController = null;
         try {
             profilesUtil = new ProfilesUtil();

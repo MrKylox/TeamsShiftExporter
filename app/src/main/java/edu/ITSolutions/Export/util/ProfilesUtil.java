@@ -217,4 +217,32 @@ public List<LocalDate> getSeasonDates(String season) {
         workbook.close();
     }
 
+    public void deleteShift(Shift shift) {
+        Sheet sheet = workbook.getSheet(MEMBER_PROFILES_SHEET);
+        if (sheet != null) {
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                if (row != null) {
+                    String member = row.getCell(0).getStringCellValue();
+                    String weekDay = row.getCell(1).getStringCellValue();
+                    String startTime = row.getCell(2).getStringCellValue();
+                    String endTime = row.getCell(3).getStringCellValue();
+                    String position = row.getCell(4).getStringCellValue();
+                    String season = row.getCell(5).getStringCellValue();
+    
+                    if (member.equals(shift.getMember()) &&
+                        weekDay.equals(shift.getWeekDay()) &&
+                        startTime.equals(shift.getStartTime()) &&
+                        endTime.equals(shift.getEndTime()) && 
+                        position.equals(shift.getPosition()) &&
+                        season.equals(shift.getSeason())) {
+                            System.out.println("Shift found and will be removed");
+                            sheet.removeRow(row);
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
 }

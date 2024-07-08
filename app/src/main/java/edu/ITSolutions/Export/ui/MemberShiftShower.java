@@ -55,4 +55,8 @@ public class MemberShiftShower extends HBox {
         
         tableView.refresh();
     }
+
+    public Shift getSelectedShift() {
+        return tableView.getSelectionModel().getSelectedItem();
+    }
 }

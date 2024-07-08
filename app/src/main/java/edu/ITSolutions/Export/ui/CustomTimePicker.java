@@ -17,6 +17,7 @@ public class CustomTimePicker extends HBox {
         hrminComboBox = new ComboBox<>();
         ampmComboBox = new ComboBox<>();
         for(int i = 1; i<13;i++){
+            // String hour = String.format("%02d", i);
             hour = Integer.toString(i);
             time = hour + ":" +  minute;
             time2 = hour + ":"+ minute2;
