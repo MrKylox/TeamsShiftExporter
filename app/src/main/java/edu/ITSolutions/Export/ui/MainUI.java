@@ -250,10 +250,11 @@ public class MainUI {
         Member selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
         if (selectedMember != null && profilesUtil != null) {
             shiftList.setAll(profilesUtil.getProfileShifts(selectedMember.getName()));
-            List<Shift> newShifts = profileController.sortList(profilesUtil.getProfileShifts(selectedMember.getName()));
-            System.out.printf("New shift\n",newShifts);
-            memberShiftShower.setShiftList(shiftList);
+            
+            ObservableList<Shift> newShifts = profileController.sortList(shiftList);
+            memberShiftShower.setShiftList(newShifts);
             memberShiftShower.refreshTables();
+            // System.out.println("Refreshed list"); debugging to check if refreshing the table worked
         }
     }
 
