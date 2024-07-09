@@ -1,5 +1,8 @@
 package edu.ITSolutions.Export;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+
 public class Shift {
     private final String member;
     private String weekDay;
@@ -13,6 +16,7 @@ public class Shift {
     private String color;
     private String themeColor;
     private String season;
+    private BooleanProperty selected;
 
     public Shift(String member, String weekDay, String startTime, String endTime, String position, String season){
         this.member = member;
@@ -21,6 +25,11 @@ public class Shift {
         this.endTime = endTime;
         this.position = position;
         this.season = season;
+        this.selected = new SimpleBooleanProperty(false);
+
+        this.selected.addListener((observable, oldValue, newValue) -> {
+            System.out.println("Shift" + member + "Selected: " + newValue);
+        });
     }
 
     public Shift(String member, String email, String group, String startDate, String startTime, String endDate, String endTime, String themeColor){
@@ -99,5 +108,17 @@ public class Shift {
 
     public String getSeason(){
         return this.season;
+    }
+
+    public boolean isSelected(){
+        return selected.get();
+    }
+
+    public void setSelected(boolean selected){
+        this.selected.set(selected);
+    }
+
+    public BooleanProperty selectedProperty(){
+        return selected;
     }
 }
