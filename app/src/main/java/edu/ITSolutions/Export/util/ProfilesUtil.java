@@ -79,8 +79,8 @@ public class ProfilesUtil {
                 Cell start = seasonRow.createCell(1);
                 Cell end = seasonRow.createCell(2);
                 season.setCellValue(seasonList[i]);
-                start.setCellValue("Not Set");
-                end.setCellValue("Not Set");
+                start.setCellValue("2024-01-01");
+                end.setCellValue("2024-01-01");
             }
             
             
@@ -125,39 +125,38 @@ public class ProfilesUtil {
         save();
     }
 
+    public List<LocalDate> getSeasonDates(String season) {
+        Sheet seasonSheet = workbook.getSheet(SEASON_PROFILES_SHEET);
+        List<LocalDate> seasonDates = new ArrayList<>();
+        int receivedSeason2 = -1; // Using a local variable to avoid side effects 
 
-public List<LocalDate> getSeasonDates(String season) {
-    Sheet seasonSheet = workbook.getSheet(SEASON_PROFILES_SHEET);
-    List<LocalDate> seasonDates = new ArrayList<>();
-    int receivedSeason2 = -1; // Using a local variable to avoid side effects 
-
-    for (int i = 0; i < seasonList.length; i++) {
-        if (seasonList[i].equalsIgnoreCase(season)) { // Case-insensitive comparison
-            receivedSeason2 = i + 1;
-            break;
+        for (int i = 0; i < seasonList.length; i++) {
+            if (seasonList[i].equalsIgnoreCase(season)) { // Case-insensitive comparison
+                receivedSeason2 = i + 1;
+                break;
+            }
         }
+
+        if (receivedSeason2 == -1) {
+            return seasonDates; // Return empty list if season not found
+        }
+
+        Row dateRow = seasonSheet.getRow(receivedSeason2);
+        if (dateRow != null) {
+            String startDateString = dateRow.getCell(1).getStringCellValue();
+            String endDateString = dateRow.getCell(2).getStringCellValue();
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd"); // Adjust the pattern as needed
+
+            LocalDate start = LocalDate.parse(startDateString, formatter);
+            LocalDate end = LocalDate.parse(endDateString, formatter);
+
+            seasonDates.add(start);
+            seasonDates.add(end);
+        }
+
+        return seasonDates;
     }
-
-    if (receivedSeason2 == -1) {
-        return seasonDates; // Return empty list if season not found
-    }
-
-    Row dateRow = seasonSheet.getRow(receivedSeason2);
-    if (dateRow != null) {
-        String startDateString = dateRow.getCell(1).getStringCellValue();
-        String endDateString = dateRow.getCell(2).getStringCellValue();
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd"); // Adjust the pattern as needed
-
-        LocalDate start = LocalDate.parse(startDateString, formatter);
-        LocalDate end = LocalDate.parse(endDateString, formatter);
-
-        seasonDates.add(start);
-        seasonDates.add(end);
-    }
-
-    return seasonDates;
-}
 
     public List<Shift> getProfileShifts(String member) {
         List<Shift> profileShifts = new ArrayList<>(); //Create a list of object Shift
@@ -180,7 +179,6 @@ public List<LocalDate> getSeasonDates(String season) {
         return profileShifts;
     }
 
-
     public List<Shift> getSchedule(String member){
         List<Shift> schedules = new ArrayList<>();
         Sheet memberSheet = workbook.getSheet(MEMBER_PROFILES_SHEET); // Get the sheet called member profile
@@ -202,8 +200,6 @@ public List<LocalDate> getSeasonDates(String season) {
 
         return schedules;
     }
-
-
 
     public void save() {
         try (FileOutputStream fileOut = new FileOutputStream(profilesFile)) {
