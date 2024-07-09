@@ -18,6 +18,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -41,6 +42,7 @@ public class MainUI {
     private PositionUI positionUI;
     private ProfileController profileController;
 
+
     public MainUI() {
         try {
             profilesUtil = new ProfilesUtil();
@@ -52,13 +54,47 @@ public class MainUI {
 
     public VBox createMainLayout() {
         VBox vbox = new VBox();
+        VBox rVBox = new VBox();
         GridPane gridPane = new GridPane();
+        BorderPane borderPane = new BorderPane();
 
         Label importLabel = new Label("Import Excel File:");
+
         Button importButton = new Button("Import");
+        Button SaveProfileButton = new Button("Save Shift");
+        Button deleteShiftButton = new Button("Delete Shift");
+        Button generateIndividualShiftButton = new Button("Generate Shift For Selected Member");
+        Button generateGroupShiftButton = new Button("Generate Shifts For Selected Group");
+        Button generateAllShiftsButton = new Button("Generate Shifts For All Members");
+        Button editSeasonsButton = new Button("Edit Season");
+        Button saveSeasonButton = new Button("Save Season");
 
         memberShiftShower = new MemberShiftShower();
         dayOfWeekUI = new DayOfWeekUI();
+
+        gridPane.add(importLabel, 0, 0);
+        gridPane.add(importButton, 1, 0);
+
+        memberShiftShower.setShiftList(shiftList);
+        memberChoiceBox = new ComboBox<>(memberList);
+        memberChoiceBox.setOnAction(e -> updateShiftList());
+
+        startDatePicker = new DatePicker();
+        endDatePicker = new DatePicker();
+        seasonUI = new SeasonUI();
+        positionUI = new PositionUI();
+        startTimePicker = new CustomTimePicker();
+        endTimePicker = new CustomTimePicker();
+        Label startDateLabel = new Label("Start Date:");
+        Label endDateLabel = new Label("End Date:");
+
+        saveSeasonButton.setVisible(false);
+        startDatePicker.setVisible(false);
+        endDatePicker.setVisible(false);
+        startDateLabel.setVisible(false);
+        endDateLabel.setVisible(false);
+
+        Label seasonStartAndEnd = new Label();
 
         importButton.setOnAction(e -> {
             FileChooser fileChooser = new FileChooser();
@@ -73,25 +109,6 @@ public class MainUI {
                 }
             }
         });
-
-        gridPane.add(importLabel, 0, 0);
-        gridPane.add(importButton, 1, 0);
-
-        memberChoiceBox = new ComboBox<>(memberList);
-        memberChoiceBox.setOnAction(e -> updateShiftList());
-
-        startDatePicker = new DatePicker();
-        endDatePicker = new DatePicker();
-        Label startDateLabel = new Label("Start Date:");
-        Label endDateLabel = new Label("End Date:");
-        startDateLabel.setVisible(false);
-        endDateLabel.setVisible(false);
-
-        Label seasonStartAndEnd = new Label();
-
-        seasonUI = new SeasonUI();
-
-        positionUI = new PositionUI();
 
         memberChoiceBox.setConverter(new javafx.util.StringConverter<Member>() {
             @Override
@@ -128,21 +145,6 @@ public class MainUI {
             }
         });
 
-
-
-        Button editSeasonsButton = new Button("Edit Season");
-        Button saveSeasonButton = new Button("Save Season");
-        saveSeasonButton.setVisible(false);
-        startDatePicker.setVisible(false);
-        endDatePicker.setVisible(false);
-
-
-        // StackPane to overlay buttons
-        StackPane toggleButtonsPane = new StackPane(editSeasonsButton, saveSeasonButton);
-
-
-
-
         editSeasonsButton.setOnAction(e -> {
             saveSeasonButton.setVisible(true);
             startDatePicker.setVisible(true);
@@ -153,7 +155,6 @@ public class MainUI {
             seasonStartAndEnd.setVisible(false);
         });
 
-        
         saveSeasonButton.setOnAction(e -> {
             String selectedSeason = seasonUI.getSeasonComboBox().getSelectionModel().getSelectedItem();
             LocalDate startDate = startDatePicker.getValue();
@@ -174,17 +175,6 @@ public class MainUI {
             seasonStartAndEnd.setVisible(true);
         });
 
-        HBox datesBox = new HBox(new Label("Season"), seasonUI, toggleButtonsPane, startDateLabel, startDatePicker, endDateLabel, endDatePicker);
-
-        startTimePicker = new CustomTimePicker();
-        endTimePicker = new CustomTimePicker();
-
-        HBox inputBox = new HBox(new Label("Start Time:"), startTimePicker, new Label("End Time:"), endTimePicker,
-                new Label("Position:"), positionUI );
-
-        memberShiftShower.setShiftList(shiftList);
-
-        Button SaveProfileButton = new Button("Save Shift");
         SaveProfileButton.setOnAction(e -> {
             try {
                 profilesUtil = new ProfilesUtil();
@@ -204,8 +194,7 @@ public class MainUI {
             }
             updateShiftList();
         });
-
-        Button deleteShiftButton = new Button("Delete Shift");
+        
         deleteShiftButton.setOnAction(e -> {
             Shift selectedShift = memberShiftShower.getSelectedShift();
             if (selectedShift != null) {
@@ -216,10 +205,7 @@ public class MainUI {
                 System.out.println("No shift selected");
             }
         });
-
-        HBox profileBox = new HBox(SaveProfileButton, deleteShiftButton); 
-
-        Button generateIndividualShiftButton = new Button("Generate Shift For Selected Member");
+        
         generateIndividualShiftButton.setOnAction(e -> {
             Member selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
             if (selectedMember != null) {
@@ -227,18 +213,23 @@ public class MainUI {
             }
         });
 
-        Button generateGroupShiftButton = new Button("Generate Shifts For Selected Group");
         generateGroupShiftButton.setOnAction(e -> {
             //Still need to implement 
         });
 
-
-        Button generateAllShiftsButton = new Button("Generate Shifts For All Members");
         generateAllShiftsButton.setOnAction(e -> {
             generateShiftsForAllMembers();
         });
 
-       
+        // StackPane to overlay buttons
+        StackPane toggleButtonsPane = new StackPane(editSeasonsButton, saveSeasonButton);
+
+        HBox profileBox = new HBox(SaveProfileButton, deleteShiftButton); 
+
+        HBox inputBox = new HBox(new Label("Start Time:"), startTimePicker, new Label("End Time:"), endTimePicker,
+        new Label("Position:"), positionUI );
+
+        HBox datesBox = new HBox(new Label("Season"), seasonUI, toggleButtonsPane, startDateLabel, startDatePicker, endDateLabel, endDatePicker);
 
         vbox.getChildren().addAll(gridPane, memberChoiceBox, dayOfWeekUI, seasonStartAndEnd, datesBox, inputBox, profileBox, memberShiftShower, generateIndividualShiftButton, generateGroupShiftButton, generateAllShiftsButton);
 
