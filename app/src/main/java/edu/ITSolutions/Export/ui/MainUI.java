@@ -209,12 +209,11 @@ public class MainUI {
         deleteShiftButton.setOnAction(e -> {
             Shift selectedShift = memberShiftShower.getSelectedShift();
             if (selectedShift != null) {
-                System.out.println(selectedShift);
                 profilesUtil.deleteShift(selectedShift);
-                profilesUtil.save();
                 updateShiftList();
-                System.out.println(selectedShift);
                 System.out.println("Shift deleted");
+            } else {
+                System.out.println("No shift selected");
             }
         });
 
