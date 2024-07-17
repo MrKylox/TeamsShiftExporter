@@ -299,7 +299,7 @@ public class MainUI {
         HBox memberBox = new HBox(new Label("Member: "), memberChoiceBox);
 
         VBox test = new VBox(seasonStartAndEnd, datesBox);
-        mVBox.getChildren().addAll(dOWBox, startTimeBox, endTimeBox, positionBox);
+        mVBox.getChildren().addAll(dOWBox, startTimeBox, endTimeBox, positionBox, profileBox);
         mVBox.setSpacing(10.0);
 
         borderPane.setTop(test);
@@ -313,7 +313,7 @@ public class MainUI {
         // HBox.setHgrow(memberShiftShower, Priority.ALWAYS);
         HBox.setHgrow(memberShiftControls, Priority.ALWAYS);
 
-        vbox.getChildren().addAll(memberBox, profileBox, memberShiftControls, generateShiftBox);
+        vbox.getChildren().addAll(memberBox, memberShiftControls, generateShiftBox);
         importVBox.getChildren().addAll(gridPane);
         importVBox.setAlignment(Pos.CENTER);
 
