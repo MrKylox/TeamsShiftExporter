@@ -18,6 +18,7 @@ public class App extends Application {
         primaryStage.setTitle("Schedule Manager");
         primaryStage.setScene(scene);
         // primaryStage.setFullScreen(true); -- UNcomment before pushing
+        primaryStage.setMaximized(true);
         primaryStage.show();
     }
 

@@ -14,13 +14,21 @@ import edu.ITSolutions.Export.util.ExcelUtil;
 import edu.ITSolutions.Export.util.ProfilesUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.HPos;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -41,6 +49,10 @@ public class MainUI {
     private SeasonUI seasonUI;
     private PositionUI positionUI;
     private ProfileController profileController;
+
+    // Declare importVBox as a class member variable
+    private VBox importVBox;
+    private VBox vbox;
  
  
     public MainUI() {
@@ -53,12 +65,14 @@ public class MainUI {
     }
  
     public VBox createMainLayout() {
-        VBox vbox = new VBox();
-        VBox rVBox = new VBox();
+        vbox = new VBox();
+        importVBox = new VBox();
+        VBox mVBox = new VBox();
+
         GridPane gridPane = new GridPane();
         BorderPane borderPane = new BorderPane();
  
-        Label importLabel = new Label("Import Excel File:");
+        Label importLabel = new Label("Import Excel File");
  
         Button importButton = new Button("Import");
         Button SaveProfileButton = new Button("Save Shift");
@@ -73,7 +87,16 @@ public class MainUI {
         dayOfWeekUI = new DayOfWeekUI();
  
         gridPane.add(importLabel, 0, 0);
-        gridPane.add(importButton, 1, 0);
+        gridPane.add(importButton, 0, 1);
+
+        gridPane.setAlignment(Pos.CENTER);
+
+        // Centering elements within the GridPane
+        GridPane.setHalignment(importLabel, HPos.CENTER);
+        GridPane.setHalignment(importButton, HPos.CENTER);
+
+        GridPane.setValignment(importLabel, VPos.CENTER);
+        GridPane.setValignment(importButton, VPos.CENTER);
  
         memberShiftShower.setShiftList(shiftList);
         memberChoiceBox = new ComboBox<>(memberList);
@@ -87,12 +110,17 @@ public class MainUI {
         endTimePicker = new CustomTimePicker();
         Label startDateLabel = new Label("Start Date:");
         Label endDateLabel = new Label("End Date:");
- 
+        
+        // -- Editing Season dates -------------------------------------------
         saveSeasonButton.setVisible(false);
         startDatePicker.setVisible(false);
         endDatePicker.setVisible(false);
         startDateLabel.setVisible(false);
         endDateLabel.setVisible(false);
+
+
+        // -- False visibility if there's no file imported in the beginning ----------------
+        vbox.setVisible(false);
  
         Label seasonStartAndEnd = new Label();
  
@@ -103,6 +131,8 @@ public class MainUI {
                 try {
                     excelUtil = new ExcelUtil(selectedFile);
                     memberList.setAll(excelUtil.getMembers());
+                    vbox.setVisible(true);
+                    importVBox.setVisible(false);
                     System.out.println("File imported");
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
@@ -178,22 +208,38 @@ public class MainUI {
         SaveProfileButton.setOnAction(e -> {
             try {
                 profilesUtil = new ProfilesUtil();
-                System.out.println("Profile save initated");
+                System.out.println("Profile save initiated");
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
+        
             Member selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
             if (selectedMember != null) {
                 String selectedDay = dayOfWeekUI.getSelectedDay();
+                boolean overlaps = false;
+        
                 if (selectedDay != null) {
-                    profilesUtil.saveProfile(selectedMember.getName(), selectedDay, startTimePicker.getTime(),
-                                            endTimePicker.getTime(), positionUI.getPosition(),
-                                            seasonUI.getSeason());
-                    System.out.println("Profile saved");
+                    for (Shift shift : shiftList) {
+                        if (profileController.compareTime(shift.getWeekDay(), shift.getStartTime(), shift.getEndTime(), selectedDay, startTimePicker.getTime(), endTimePicker.getTime())) {
+                            overlaps = true;
+                            break;
+                        }
+                    }
+        
+                    if (!overlaps) {
+                        profilesUtil.saveProfile(selectedMember.getName(), selectedDay, startTimePicker.getTime(),
+                                                 endTimePicker.getTime(), positionUI.getPosition(),
+                                                 seasonUI.getSeason());
+                        System.out.println("Profile saved");
+                    } else {
+                        System.out.println("Shift overlaps with an existing shift.");
+                    }
                 }
             }
             updateShiftList();
         });
+        
+        
        
         deleteShiftButton.setOnAction(e -> {
             Shift selectedShift = memberShiftShower.getSelectedShift();
@@ -226,14 +272,74 @@ public class MainUI {
  
         HBox profileBox = new HBox(SaveProfileButton, deleteShiftButton);
  
-        HBox inputBox = new HBox(new Label("Start Time:"), startTimePicker, new Label("End Time:"), endTimePicker,
-        new Label("Position:"), positionUI );
+        HBox startTimeBox = new HBox(new Label("Start Time: "), startTimePicker);
+        HBox endTimeBox = new HBox(new Label("End Time: "), endTimePicker);
+
+        HBox datesBox = new HBox(new Label("Season: "), seasonUI, toggleButtonsPane, startDateLabel, startDatePicker, endDateLabel, endDatePicker);
+        HBox positionBox = new HBox(new Label("Position: "), positionUI);
+        HBox dOWBox = new HBox(new Label("Day Of Week: "), dayOfWeekUI);
+        HBox memberBox = new HBox(new Label("Member: "), memberChoiceBox);
+
+        
+        VBox test = new VBox(seasonStartAndEnd, datesBox);
+        mVBox.getChildren().addAll(dOWBox, startTimeBox, endTimeBox, positionBox);
+        mVBox.setSpacing(10.0);
+
+        borderPane.setTop(test);
+        // BorderPane.setAlignment(tVBox, Pos.BOTTOM_CENTER);
+        BorderPane.setMargin(mVBox, new Insets(0, 0, 10, 10));
+        BorderPane.setMargin(test, new Insets(0, 0, 10, 10));
+        borderPane.setCenter(mVBox);
+
+        HBox generateShiftBox = new HBox(generateIndividualShiftButton, generateGroupShiftButton, generateAllShiftsButton);
+        HBox memberShiftControls = new HBox(memberShiftShower, borderPane);
+        // HBox.setHgrow(memberShiftShower, Priority.ALWAYS);
+        HBox.setHgrow(memberShiftControls, Priority.ALWAYS);
+
+        vbox.getChildren().addAll(memberBox, profileBox, memberShiftControls, generateShiftBox);
+        importVBox.getChildren().addAll(gridPane);
+        importVBox.setAlignment(Pos.CENTER);
+
+        // Add drag-and-drop functionality
+        importVBox.setOnDragOver(this::handleDragOver);
+        importVBox.setOnDragDropped(this::handleDragDropped);
+
+        StackPane UIViewPane = new StackPane(importVBox, vbox);
+        UIViewPane.setAlignment(Pos.CENTER);
+
+        VBox mainVBox = new VBox(UIViewPane);
+        //mainVBox.setAlignment(Pos.CENTER);
+
  
-        HBox datesBox = new HBox(new Label("Season"), seasonUI, toggleButtonsPane, startDateLabel, startDatePicker, endDateLabel, endDatePicker);
- 
-        vbox.getChildren().addAll(gridPane, memberChoiceBox, dayOfWeekUI, seasonStartAndEnd, datesBox, inputBox, profileBox, memberShiftShower, generateIndividualShiftButton, generateGroupShiftButton, generateAllShiftsButton);
- 
-        return vbox;
+        return mainVBox;
+    }
+
+    private void handleDragOver(DragEvent event) {
+        if (event.getGestureSource() != importVBox && event.getDragboard().hasFiles()) {
+            event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+        }
+        event.consume();
+    }
+
+    private void handleDragDropped(DragEvent event) {
+        Dragboard db = event.getDragboard();
+        boolean success = false;
+        if (db.hasFiles()) {
+            success = true;
+            for (File file : db.getFiles()) {
+                try {
+                    excelUtil = new ExcelUtil(file);
+                    memberList.setAll(excelUtil.getMembers());
+                    vbox.setVisible(true);
+                    importVBox.setVisible(false);
+                    System.out.println("File imported via drag-and-drop");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        event.setDropCompleted(success);
+        event.consume();
     }
  
     private void updateShiftList() {

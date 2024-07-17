@@ -98,4 +98,18 @@ public class ProfileController {
         
         return sortedShiftList;//return sorted list
     }
+
+    public Boolean compareTime(String savedDay, String savedStartTime, String savedEndTime, String newDay, String newStartTime, String newEndTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("h:mma"); // formatting to convert to LocalTime type
+        LocalTime savedStartTimeLocal = LocalTime.parse(savedStartTime.toUpperCase(), formatter);
+        LocalTime savedEndTimeLocal = LocalTime.parse(savedEndTime.toUpperCase(), formatter);
+        LocalTime newStartTimeLocal = LocalTime.parse(newStartTime.toUpperCase(), formatter);
+        LocalTime newEndTimeLocal = LocalTime.parse(newEndTime.toUpperCase(), formatter);
+    
+        // Check if the new day is the same as the saved day and if the new time overlaps with the saved time
+        return savedDay.equalsIgnoreCase(newDay) && 
+               (newStartTimeLocal.isBefore(savedEndTimeLocal) && newEndTimeLocal.isAfter(savedStartTimeLocal));
+    }
+    
+
 }
