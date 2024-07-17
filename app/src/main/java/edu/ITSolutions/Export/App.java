@@ -16,7 +16,11 @@ public class App extends Application {
 
         Scene scene = new Scene(root, 800, 600);
         primaryStage.setTitle("Schedule Manager");
+        
+        // Load the CSS file and apply it to the scene
+        scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm()); 
         primaryStage.setScene(scene);
+
         // primaryStage.setFullScreen(true); -- UNcomment before pushing
         primaryStage.setMaximized(true);
         primaryStage.show();

@@ -1,0 +1,12 @@
+/* styles.css */
+.label-red {
+    -fx-text-fill: red;
+}
+
+.label-green {
+    -fx-text-fill: green;
+}
+
+.label-blue {
+    -fx-text-fill: blue;
+}
