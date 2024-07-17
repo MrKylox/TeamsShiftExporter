@@ -82,6 +82,7 @@ public class MainUI {
         Button generateAllShiftsButton = new Button("Generate Shifts For All Members");
         Button editSeasonsButton = new Button("Edit Season");
         Button saveSeasonButton = new Button("Save Season");
+        Button cancelSeasonButton = new Button("Cancel");
  
         memberShiftShower = new MemberShiftShower();
         dayOfWeekUI = new DayOfWeekUI();
@@ -117,6 +118,7 @@ public class MainUI {
         endDatePicker.setVisible(false);
         startDateLabel.setVisible(false);
         endDateLabel.setVisible(false);
+        cancelSeasonButton.setVisible(false);
 
 
         // -- False visibility if there's no file imported in the beginning ----------------
@@ -176,13 +178,28 @@ public class MainUI {
         });
  
         editSeasonsButton.setOnAction(e -> {
-            saveSeasonButton.setVisible(true);
-            startDatePicker.setVisible(true);
-            endDatePicker.setVisible(true);
-            startDateLabel.setVisible(true);
-            endDateLabel.setVisible(true);
-            editSeasonsButton.setVisible(false);
-            seasonStartAndEnd.setVisible(false);
+            String selectedSeason = seasonUI.getSeasonComboBox().getSelectionModel().getSelectedItem();
+            if(selectedSeason != null){
+                saveSeasonButton.setVisible(true);
+                startDatePicker.setVisible(true);
+                endDatePicker.setVisible(true);
+                startDateLabel.setVisible(true);
+                endDateLabel.setVisible(true);
+                cancelSeasonButton.setVisible(true);
+                editSeasonsButton.setVisible(false);
+                // seasonStartAndEnd.setVisible(false);
+            }
+        });
+
+        cancelSeasonButton.setOnAction(e -> {
+            startDatePicker.setVisible(false);
+            endDatePicker.setVisible(false);
+            startDateLabel.setVisible(false);
+            endDateLabel.setVisible(false);
+            saveSeasonButton.setVisible(false);
+            cancelSeasonButton.setVisible(false);
+            editSeasonsButton.setVisible(true);
+            seasonStartAndEnd.setVisible(true);
         });
  
         saveSeasonButton.setOnAction(e -> {
@@ -201,6 +218,7 @@ public class MainUI {
             startDateLabel.setVisible(false);
             endDateLabel.setVisible(false);
             saveSeasonButton.setVisible(false);
+            cancelSeasonButton.setVisible(false);
             editSeasonsButton.setVisible(true);
             seasonStartAndEnd.setVisible(true);
         });
@@ -237,9 +255,7 @@ public class MainUI {
                 }
             }
             updateShiftList();
-        });
-        
-        
+        });   
        
         deleteShiftButton.setOnAction(e -> {
             Shift selectedShift = memberShiftShower.getSelectedShift();
@@ -275,7 +291,7 @@ public class MainUI {
         HBox startTimeBox = new HBox(new Label("Start Time: "), startTimePicker);
         HBox endTimeBox = new HBox(new Label("End Time: "), endTimePicker);
 
-        HBox datesBox = new HBox(new Label("Season: "), seasonUI, toggleButtonsPane, startDateLabel, startDatePicker, endDateLabel, endDatePicker);
+        HBox datesBox = new HBox(new Label("Season: "), seasonUI, toggleButtonsPane, cancelSeasonButton, startDateLabel, startDatePicker, endDateLabel, endDatePicker);
         HBox positionBox = new HBox(new Label("Position: "), positionUI);
         HBox dOWBox = new HBox(new Label("Day Of Week: "), dayOfWeekUI);
         HBox memberBox = new HBox(new Label("Member: "), memberChoiceBox);
