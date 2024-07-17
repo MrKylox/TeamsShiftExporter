@@ -19,17 +19,13 @@ public class Shift {
     private BooleanProperty selected;
 
     public Shift(String member, String weekDay, String startTime, String endTime, String position, String season){
+        this.selected = new SimpleBooleanProperty(false);
         this.member = member;
         this.weekDay = weekDay;
         this.startTime = startTime;
         this.endTime = endTime;
         this.position = position;
         this.season = season;
-        this.selected = new SimpleBooleanProperty(false);
-
-        this.selected.addListener((observable, oldValue, newValue) -> {
-            System.out.println("Shift" + member + "Selected: " + newValue);
-        });
     }
 
     public Shift(String member, String email, String group, String startDate, String startTime, String endDate, String endTime, String themeColor){

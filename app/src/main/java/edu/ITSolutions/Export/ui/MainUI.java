@@ -49,6 +49,7 @@ public class MainUI {
     private SeasonUI seasonUI;
     private PositionUI positionUI;
     private ProfileController profileController;
+    private CustomCheckBox customCheckBox;
 
     // Declare importVBox as a class member variable
     private VBox importVBox;
@@ -59,6 +60,7 @@ public class MainUI {
         try {
             profilesUtil = new ProfilesUtil();
             profileController = new ProfileController();
+            customCheckBox = new CustomCheckBox();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -258,9 +260,9 @@ public class MainUI {
         });   
        
         deleteShiftButton.setOnAction(e -> {
-            Shift selectedShift = memberShiftShower.getSelectedShift();
-            if (selectedShift != null) {
-                profilesUtil.deleteShift(selectedShift);
+            ObservableList<Shift> selectedShift = customCheckBox.getSelectedShifts(shiftList);
+            if (selectedShift.size() > 0) {
+                profilesUtil.deleteSelectedShifts(selectedShift);
                 updateShiftList();
                 System.out.println("Shift deleted");
             } else {

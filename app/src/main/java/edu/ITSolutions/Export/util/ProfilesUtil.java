@@ -17,6 +17,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import edu.ITSolutions.Export.Shift;
+import edu.ITSolutions.Export.ui.CustomCheckBox;
+import javafx.collections.ObservableList;
 
 public class ProfilesUtil {
     private static final String DIRECTORY_PATH = System.getProperty("user.home") + "\\ShiftExporter";
@@ -29,11 +31,13 @@ public class ProfilesUtil {
     private final File profilesFile;
     private static final String[] seasonList = {"Fall", "Winter", "Spring", "Summer"};
     private int receivedSeason = -1;
+    private CustomCheckBox customCheckBox;
 
     public ProfilesUtil() throws IOException {
         FileInputStream fileInputStream = new FileInputStream(FILE_NAME);
         this.workbook = new XSSFWorkbook(fileInputStream);
         this.profilesFile = new File(FILE_NAME);
+        this.customCheckBox = new CustomCheckBox();
     }
 
     public static void createDirectoryIfNotExists() {
@@ -213,6 +217,7 @@ public class ProfilesUtil {
         workbook.close();
     }
 
+    //delete a shift from the excel sheet
     public void deleteShift(Shift shift) {
         System.out.println("We reached the delete method!");
         Sheet sheet = workbook.getSheet(MEMBER_PROFILES_SHEET);
@@ -249,6 +254,14 @@ public class ProfilesUtil {
                     }
                 }
             }
+        }
+    }
+
+    //Deletes for every selected shift
+    public void deleteSelectedShifts(ObservableList<Shift> selectedShifts){
+        for(int i = 0; i < selectedShifts.size(); i++){
+            // System.out.println(selectedShifts.get(i).isSelected());
+            deleteShift(selectedShifts.get(i));
         }
     }
 }

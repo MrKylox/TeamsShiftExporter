@@ -5,18 +5,26 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 
 public class MemberShiftShower extends HBox {
     private final TableView<Shift> tableView;
     private final ObservableList<Shift> shiftList;
+    private CustomCheckBox customCheckBox;
 
     public MemberShiftShower() {
         tableView = new TableView<>();
         shiftList = FXCollections.observableArrayList();
+        customCheckBox = new CustomCheckBox();
 
         // Columns for the Shift Table
+        TableColumn<Shift, Boolean> checkBoxColumn = new TableColumn<>("Select");
+        checkBoxColumn.setCellValueFactory(cellData -> cellData.getValue().selectedProperty());
+        checkBoxColumn.setCellFactory(CheckBoxTableCell.forTableColumn(checkBoxColumn));
+        customCheckBox.handleCheckBoxClick(tableView,checkBoxColumn);
+        
         TableColumn<Shift, String> memberColumn = new TableColumn<>("Member");
         memberColumn.setCellValueFactory(new PropertyValueFactory<>("Member"));
 
@@ -35,11 +43,11 @@ public class MemberShiftShower extends HBox {
         TableColumn<Shift, String> seasonColumn = new TableColumn<>("Season");
         seasonColumn.setCellValueFactory(new PropertyValueFactory<>("season"));
 
-
+        
 
         @SuppressWarnings("unchecked")
         TableColumn<Shift, String>[] columns = new TableColumn[] {
-            memberColumn, weekdayColumn, startTimeColumn, endTimeColumn, positionColumn, seasonColumn
+            checkBoxColumn, memberColumn, weekdayColumn, startTimeColumn, endTimeColumn, positionColumn, seasonColumn
         };
         tableView.getColumns().addAll(columns);
         tableView.setItems(shiftList);
@@ -52,11 +60,11 @@ public class MemberShiftShower extends HBox {
     }
 
     public void refreshTables() {
-        
         tableView.refresh();
     }
 
     public Shift getSelectedShift() {
         return tableView.getSelectionModel().getSelectedItem();
     }
+
 }
