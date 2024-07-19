@@ -57,6 +57,11 @@ public class MemberShiftShower extends HBox {
 
     public void setShiftList(ObservableList<Shift> shiftList) {
         this.shiftList.setAll(shiftList);
+        System.out.println("List: "+ shiftList);
+    }
+
+    public ObservableList<Shift> getShiftList(){
+        return shiftList;
     }
 
     public void refreshTables() {

@@ -60,6 +60,8 @@ public class MainUI {
             profilesUtil = new ProfilesUtil();
             profileController = new ProfileController();
             customCheckBox = new CustomCheckBox();
+            memberShiftShower = new MemberShiftShower();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -368,6 +370,24 @@ public class MainUI {
             memberShiftShower.refreshTables();
             // System.out.println("Refreshed list"); debugging to check if refreshing the table worked
         }
+    }
+    
+    //Funciton for 2nd tab view
+    public ObservableList<Shift> displayAllShifts(){
+        ObservableList<Shift> memberShiftList = FXCollections.observableArrayList();
+        for(Member member : memberList){
+            if(member.getName() != null){
+                List<Shift> selectedMemberShift = profilesUtil.getProfileShifts(member.getName());
+                
+                for(Shift shift : selectedMemberShift){
+                    memberShiftList.add(shift);
+                }
+            }
+        }
+        // memberShiftShower.setShiftList(memberShiftList);
+        System.out.println("List: "+memberShiftList);
+        return memberShiftList;
+
     }
 
     // private void generateShiftsForSelectedGroup(){
