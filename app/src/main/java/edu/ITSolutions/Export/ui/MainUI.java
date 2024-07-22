@@ -131,7 +131,7 @@ public class MainUI {
         Label startDateLabel = new Label("Start Date:");
         startDateLabel.getStyleClass().add("label-blue");
         Label endDateLabel = new Label("End Date:");
-        endDateLabel.getStyleClass().add("label-blue"); // Applying blue color to the end date label
+        endDateLabel.getStyleClass().add("label-blue");
 
         // -- Editing Season dates -------------------------------------------
         saveSeasonButton.setVisible(false);
@@ -196,25 +196,37 @@ public class MainUI {
                     seasonStartAndEnd.setText(receivedDates.get(0) + " - " + receivedDates.get(1));
                 }
 
-                // Handle season selection change if needed
                 System.out.println("Season selected: " + newValue);
             }
         });
-
+        
         cb.setCellFactory(c -> {
             ListCell<GroupSelector<String>> cell = new ListCell<>() {
                 @Override
                 protected void updateItem(GroupSelector<String> item, boolean empty) {
                     super.updateItem(item, empty);
-                    if (item != null && !empty) {
-                        CheckBox checkBox = new CheckBox(item.toString());
-                        checkBox.selectedProperty().bindBidirectional(item.checkProperty());
-                        setGraphic(checkBox);
+                    if (!empty) {
+                        final CheckBox cb = new CheckBox(item.toString());
+                        cb.selectedProperty().bindBidirectional(item.checkProperty());
+                        setGraphic(cb);
                     } else {
                         setGraphic(null);
                     }
                 }
             };
+
+            cell.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> {
+                if (!cell.isEmpty()) {
+                    GroupSelector<String> item = cell.getItem();
+                    item.setCheck(!item.getCheck());
+                    StringBuilder sb = new StringBuilder();
+                    cb.getItems().filtered(f -> f.getCheck()).forEach(p -> sb.append(";").append(p.getItem()));
+                    String text = sb.length() > 0 ? sb.substring(1) : "";
+                    cb.setPromptText(text);
+                    updateMemberList(cb.getItems().filtered(GroupSelector::getCheck));
+                }
+            });
+
             return cell;
         });
 
@@ -278,18 +290,14 @@ public class MainUI {
         deleteShiftButton.setOnAction(e -> {
             ObservableList<Shift> selectedShifts = customCheckBox.getSelectedShifts(shiftList);
             if (!selectedShifts.isEmpty()) {
-                // Create the confirmation alert
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                Alert alert = new Alert(AlertType.CONFIRMATION);
                 alert.setTitle("Confirmation");
                 alert.setHeaderText("Are you sure you would like to delete the following shifts:");
-
-                // Create a GridPane to show the shifts
                 GridPane shiftDetailsGrid = new GridPane();
                 shiftDetailsGrid.setPadding(new Insets(10));
                 shiftDetailsGrid.setVgap(10);
                 shiftDetailsGrid.setHgap(10);
 
-                // Add header row
                 shiftDetailsGrid.addRow(0,
                         new Label("Member"),
                         new Label("Week Day"),
@@ -298,7 +306,6 @@ public class MainUI {
                         new Label("Position"),
                         new Label("Season"));
 
-                // Add shift details to the grid
                 int row = 1;
                 for (Shift shift : selectedShifts) {
                     shiftDetailsGrid.addRow(row++,
@@ -310,10 +317,7 @@ public class MainUI {
                             new Label(shift.getSeason()));
                 }
 
-                // Set the content of the alert
                 alert.getDialogPane().setContent(shiftDetailsGrid);
-
-                // Show the alert and wait for response
                 alert.showAndWait().ifPresent(response -> {
                     if (response == ButtonType.OK) {
                         profilesUtil.deleteSelectedShifts(selectedShifts);
@@ -322,8 +326,7 @@ public class MainUI {
                     }
                 });
             } else {
-                // Show a warning if no shifts are selected
-                Alert alert = new Alert(Alert.AlertType.WARNING);
+                Alert alert = new Alert(AlertType.WARNING);
                 alert.setTitle("No Shift Selected");
                 alert.setHeaderText("Please make sure a shift is selected");
                 alert.setContentText("NOTE: Check if the checkboxes are marked");
@@ -340,7 +343,7 @@ public class MainUI {
 
         generateGroupShiftButton.setOnAction(e -> {
             List<String> selectedGroup = new ArrayList<>();
-            cb.getItems().filtered(f -> f.getCheck()).forEach(item -> /*Generate schedule here*/selectedGroup.add(item.getItem()));
+            cb.getItems().filtered(GroupSelector::getCheck).forEach(item -> selectedGroup.add(item.getItem()));
             generateShiftForGroup(selectedGroup, memberList);
         });
 
@@ -348,7 +351,6 @@ public class MainUI {
             generateShiftsForAllMembers();
         });
 
-        // StackPane to overlay buttons
         StackPane toggleButtonsPane = new StackPane(editSeasonsButton, saveSeasonButton);
 
         HBox profileBox = new HBox(SaveProfileButton, deleteShiftButton);
@@ -366,7 +368,6 @@ public class MainUI {
         mVBox.setSpacing(10.0);
 
         borderPane.setTop(test);
-        // BorderPane.setAlignment(tVBox, Pos.BOTTOM_CENTER);
         BorderPane.setMargin(mVBox, new Insets(0, 0, 10, 10));
         BorderPane.setMargin(test, new Insets(0, 0, 10, 10));
         borderPane.setCenter(mVBox);
@@ -374,14 +375,12 @@ public class MainUI {
         HBox generateShiftBox = new HBox(generateIndividualShiftButton, generateAllShiftsButton);
         HBox generateGroupBox = new HBox(generateGroupShiftButton, cb);
         HBox memberShiftControls = new HBox(memberShiftShower, borderPane);
-        // HBox.setHgrow(memberShiftShower, Priority.ALWAYS);
         HBox.setHgrow(memberShiftControls, Priority.ALWAYS);
 
         vbox.getChildren().addAll(memberBox, memberShiftControls, generateShiftBox, generateGroupBox, selectedGroupTable);
         importVBox.getChildren().addAll(gridPane);
         importVBox.setAlignment(Pos.CENTER);
 
-        // Add drag-and-drop functionality
         importVBox.setOnDragOver(this::handleDragOver);
         importVBox.setOnDragDropped(this::handleDragDropped);
 
@@ -389,7 +388,6 @@ public class MainUI {
         UIViewPane.setAlignment(Pos.CENTER);
 
         VBox mainVBox = new VBox(UIViewPane);
-        //mainVBox.setAlignment(Pos.CENTER);
 
         return mainVBox;
     }
@@ -434,12 +432,11 @@ public class MainUI {
             ObservableList<Shift> allNewShifts = allShifts.getAllShifts();
             allShiftShower.setAllShiftList(allNewShifts);
             allShiftShower.refreshTables();
-            // System.out.println("Refreshed list"); debugging to check if refreshing the table worked
         }
     }
 
     private void generateShiftsForAllMembers() {
-        List<Member> allMembers = memberList;  // Use the member list from your class
+        List<Member> allMembers = memberList;
         ScheduleController scheduleController = null;
 
         try {
@@ -463,7 +460,7 @@ public class MainUI {
                     String position = shift.getPosition();
                     String selectedDay = shift.getWeekDay();
 
-                    if (receivedDates.size() >= 2) {  // Ensure we have both start and end dates
+                    if (receivedDates.size() >= 2) {
                         System.out.println("Received dates is greater than 2 for member: " + member.getName());
                         LocalDate startDate = receivedDates.get(0);
                         LocalDate endDate = receivedDates.get(1);
@@ -511,7 +508,7 @@ public class MainUI {
                 String position = shift.getPosition();
                 String selectedDay = shift.getWeekDay();
 
-                if (receivedDates.size() >= 2) {  // Ensure we have both start and end dates
+                if (receivedDates.size() >= 2) {
                     System.out.println("Received dates is greater than 2");
                     LocalDate startDate = receivedDates.get(0);
                     LocalDate endDate = receivedDates.get(1);
@@ -546,11 +543,14 @@ public class MainUI {
         }
     }
 
-    private void updateMemberList(List<String> selectedGroup, ObservableList<Member> memberList) {
+    private void updateMemberList(ObservableList<GroupSelector<String>> selectedGroup) {
         ObservableList<Member> members = FXCollections.observableArrayList();
-        for (Member member : memberList) {
-            if (selectedGroup.contains(member.getName())) {
-                members.add(member);
+        for (GroupSelector<String> groupSelector : selectedGroup) {
+            for (Member member : memberList) {
+                if (groupSelector.getItem().equals(member.getName())) {
+                    members.add(member);
+                    break;
+                }
             }
         }
         selectedGroupTable.setMemberList(members);
@@ -561,13 +561,11 @@ public class MainUI {
         alert.setTitle("Confirmation");
         alert.setHeaderText("Generated Shifts:");
 
-        // Create a GridPane to show the shifts
         GridPane shiftDetailsGrid = new GridPane();
         shiftDetailsGrid.setPadding(new Insets(10));
         shiftDetailsGrid.setVgap(10);
         shiftDetailsGrid.setHgap(10);
 
-        // Add header row
         shiftDetailsGrid.addRow(0,
                 new Label("Member"),
                 new Label("Week Day"),
@@ -576,7 +574,6 @@ public class MainUI {
                 new Label("Position"),
                 new Label("Season"));
 
-        // Add shift details to the grid
         int row = 1;
         for (Shift shift : generatedShifts) {
             shiftDetailsGrid.addRow(row++,
@@ -588,13 +585,10 @@ public class MainUI {
                     new Label(shift.getSeason()));
         }
 
-        // Set the content of the alert
         alert.getDialogPane().setContent(shiftDetailsGrid);
 
-        // Show the alert and wait for response
         alert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-                // Save the generated shifts to the profilesUtil
                 for (Shift shift : generatedShifts) {
                     profilesUtil.saveProfile(shift.getMember(), shift.getWeekDay(), shift.getStartTime(), shift.getEndTime(), shift.getPosition(), shift.getSeason());
                 }

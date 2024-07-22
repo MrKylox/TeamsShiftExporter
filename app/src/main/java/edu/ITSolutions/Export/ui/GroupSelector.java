@@ -9,47 +9,44 @@ public class GroupSelector<T> {
     private final BooleanProperty check = new SimpleBooleanProperty(false);
     private final ObjectProperty<T> item = new SimpleObjectProperty<>();
 
-    GroupSelector(){
+    public GroupSelector() {
     }
 
-    GroupSelector(T item){
+    public GroupSelector(T item) {
         this.item.set(item);
     }
 
-    GroupSelector(T item, Boolean check){
+    public GroupSelector(T item, Boolean check) {
         this.item.set(item);
         this.check.set(check);
     }
 
-    public BooleanProperty checkProperty(){
+    public BooleanProperty checkProperty() {
         return check;
     }
 
-    public Boolean getCheck(){
+    public Boolean getCheck() {
         return check.getValue();
     }
 
-
-    public void setCheck(Boolean value){
+    public void setCheck(Boolean value) {
         check.set(value);
     }
 
-    public ObjectProperty<T> itemProperty(){
+    public ObjectProperty<T> itemProperty() {
         return item;
     }
 
-    public T getItem(){
+    public T getItem() {
         return item.getValue();
     }
 
-    public void setItem(T value){
+    public void setItem(T value) {
         item.setValue(value);
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return item.getValue().toString();
     }
-
-    
 }
