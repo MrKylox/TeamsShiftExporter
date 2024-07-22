@@ -223,7 +223,9 @@ public class MainUI {
                     cb.getItems().filtered(f -> f.getCheck()).forEach(p -> sb.append(";").append(p.getItem()));
                     String text = sb.length() > 0 ? sb.substring(1) : "";
                     cb.setPromptText(text);
-                    updateMemberList(cb.getItems().filtered(GroupSelector::getCheck));
+                    List<GroupSelector<String>> selectedGroup = cb.getItems().filtered(GroupSelector::getCheck);
+                    updateMemberList(selectedGroup, memberList);
+
                 }
             });
 
@@ -401,6 +403,7 @@ public class MainUI {
 
     private void handleDragDropped(DragEvent event) {
         Dragboard db = event.getDragboard();
+        ObservableList<GroupSelector<String>> options = FXCollections.observableArrayList();
         boolean success = false;
         if (db.hasFiles()) {
             success = true;
@@ -410,6 +413,10 @@ public class MainUI {
                     memberList.setAll(excelUtil.getMembers());
                     vbox.setVisible(true);
                     importVBox.setVisible(false);
+                    for (Member member : memberList) {
+                        options.add(new GroupSelector<>(member.getName()));
+                    }
+                    cb.setItems(options);
                     System.out.println("File imported via drag-and-drop");
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -543,18 +550,14 @@ public class MainUI {
         }
     }
 
-    private void updateMemberList(ObservableList<GroupSelector<String>> selectedGroup) {
+    private void updateMemberList(List<GroupSelector<String>> selectedGroup, ObservableList<Member> memberList) {
         ObservableList<Member> members = FXCollections.observableArrayList();
         for (GroupSelector<String> groupSelector : selectedGroup) {
-            for (Member member : memberList) {
-                if (groupSelector.getItem().equals(member.getName())) {
-                    members.add(member);
-                    break;
-                }
-            }
+            members.add(groupSelector.getItem());
         }
         selectedGroupTable.setMemberList(members);
     }
+    
 
     private void showGeneratedShiftsConfirmationDialog(List<Shift> generatedShifts) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);

@@ -68,34 +68,6 @@ public class ExcelUtil {
         workbook.close();
     }
 
-    // public void applyProfileShifts(String member, List<Shift> shifts) {
-    //     Sheet sheet = workbook.getSheet("Shifts");
-    //     if (sheet == null) {
-    //         sheet = workbook.createSheet("Shifts");
-    //         Row headerRow = sheet.createRow(0);
-    //         headerRow.createCell(0).setCellValue("Member");
-    //         headerRow.createCell(1).setCellValue("WeekDay");
-    //         headerRow.createCell(2).setCellValue("Start Date");
-    //         headerRow.createCell(3).setCellValue("Start Time");
-    //         headerRow.createCell(4).setCellValue("End Date");
-    //         headerRow.createCell(5).setCellValue("End Time");
-    //         headerRow.createCell(6).setCellValue("Group");
-    //         headerRow.createCell(7).setCellValue("Theme Color");
-    //     }
-
-    //     for (Shift shift : shifts) {
-    //         Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-    //         row.createCell(0).setCellValue(shift.getMember());
-    //         row.createCell(1).setCellValue(shift.getWeekDay());
-    //         row.createCell(2).setCellValue(shift.getStartDate());
-    //         row.createCell(3).setCellValue(shift.getStartTime());
-    //         row.createCell(4).setCellValue(shift.getEndDate());
-    //         row.createCell(5).setCellValue(shift.getEndTime());
-    //         row.createCell(6).setCellValue(shift.getGroup());
-    //         row.createCell(7).setCellValue(shift.getColor());
-    //     }
-    // }
-
     public void clearSheetExceptHeader() {
         Sheet sheet = workbook.getSheet("Shifts");
         if (sheet != null) {
