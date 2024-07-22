@@ -1,5 +1,6 @@
 package edu.ITSolutions.Export;
 
+import edu.ITSolutions.Export.ui.AllShiftShower;
 import edu.ITSolutions.Export.ui.AllShifts;
 import edu.ITSolutions.Export.ui.MainUI;
 import edu.ITSolutions.Export.util.ProfilesUtil;
@@ -28,6 +29,7 @@ public class App extends Application {
         // Create an instance of MainUI
         MainUI mainUI = new MainUI();
         AllShifts allShifts = new AllShifts();
+        AllShiftShower allShiftShower = new AllShiftShower();
 
         // Set the MainUI layout as the content of the tab
         mainTab.setContent(mainUI.createMainLayout());
@@ -38,25 +40,23 @@ public class App extends Application {
         
         // Add the tab to the TabPane
         
-        Tab allShiftDisplay = new Tab();
+        Tab allShiftTab = new Tab();
 
         Label allShiftDisplayLabel = new Label("All Shifts");
         allShiftDisplayLabel.setMinWidth(150);
-        allShiftDisplay.setGraphic(allShiftDisplayLabel);
+        allShiftTab.setGraphic(allShiftDisplayLabel);
 
-        allShiftDisplay.setContent(allShifts.createAllShiftsLayout());
-        allShiftDisplay.setClosable(false);
+        allShiftTab.setContent(allShifts.createAllShiftsLayout());
+        allShiftTab.setClosable(false);
 
-        tabPane.getTabs().addAll(mainTab,allShiftDisplay);
+        tabPane.getTabs().addAll(mainTab,allShiftTab);
 
         tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
             @Override
             public void changed(ObservableValue<? extends Tab> observableValue, Tab oldTab, Tab newTab){
-                System.out.println("Old tab: "+oldTab+"\n" + "New tab: "+newTab + "\n");
-
-                if (newTab == allShiftDisplay){
-                    System.out.println("Selected All Shifts");
-                    allShifts.display();
+                if (newTab == allShiftTab){
+                    System.out.println("Selected All Shifts");//debugging
+                    allShiftShower.refreshTables();
                 }
             }
         });
@@ -66,7 +66,7 @@ public class App extends Application {
         // anotherTab.setContent(new AnotherUI().createLayout());
         // tabPane.getTabs().add(anotherTab);
 
-        Scene scene = new Scene(tabPane, 800, 600);
+        Scene scene = new Scene(tabPane, 1200, 800);
         primaryStage.setTitle("Schedule Manager");
 
         // Load the CSS file and apply it to the scene

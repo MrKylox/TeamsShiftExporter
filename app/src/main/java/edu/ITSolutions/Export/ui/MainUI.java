@@ -50,6 +50,7 @@ public class MainUI {
     private PositionUI positionUI;
     private ProfileController profileController;
     private CustomCheckBox customCheckBox;
+    private AllShiftShower allShiftShower;
 
     // Declare importVBox as a class member variable
     private VBox importVBox;
@@ -61,6 +62,7 @@ public class MainUI {
             profileController = new ProfileController();
             customCheckBox = new CustomCheckBox();
             memberShiftShower = new MemberShiftShower();
+            allShiftShower = new AllShiftShower();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -368,27 +370,14 @@ public class MainUI {
             ObservableList<Shift> newShifts = profileController.sortList(shiftList);
             memberShiftShower.setShiftList(newShifts);
             memberShiftShower.refreshTables();
+            AllShifts allShifts = new AllShifts();
+            ObservableList<Shift> allNewShifts = allShifts.getAllShifts();
+            allShiftShower.setAllShiftList(allNewShifts);
+            allShiftShower.refreshTables();
             // System.out.println("Refreshed list"); debugging to check if refreshing the table worked
         }
     }
     
-    //Funciton for 2nd tab view
-    public ObservableList<Shift> displayAllShifts(){
-        ObservableList<Shift> memberShiftList = FXCollections.observableArrayList();
-        for(Member member : memberList){
-            if(member.getName() != null){
-                List<Shift> selectedMemberShift = profilesUtil.getProfileShifts(member.getName());
-                
-                for(Shift shift : selectedMemberShift){
-                    memberShiftList.add(shift);
-                }
-            }
-        }
-        // memberShiftShower.setShiftList(memberShiftList);
-        System.out.println("List: "+memberShiftList);
-        return memberShiftList;
-
-    }
 
     // private void generateShiftsForSelectedGroup(){
 

@@ -17,7 +17,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import edu.ITSolutions.Export.Shift;
-import edu.ITSolutions.Export.ui.CustomCheckBox;
 import javafx.collections.ObservableList;
 
 public class ProfilesUtil {
@@ -31,13 +30,11 @@ public class ProfilesUtil {
     private final File profilesFile;
     private static final String[] seasonList = {"Fall", "Winter", "Spring", "Summer"};
     private int receivedSeason = -1;
-    private CustomCheckBox customCheckBox;
 
     public ProfilesUtil() throws IOException {
         FileInputStream fileInputStream = new FileInputStream(FILE_NAME);
         this.workbook = new XSSFWorkbook(fileInputStream);
         this.profilesFile = new File(FILE_NAME);
-        this.customCheckBox = new CustomCheckBox();
     }
 
     public static void createDirectoryIfNotExists() {
@@ -51,8 +48,9 @@ public class ProfilesUtil {
         return workbook;
     }
 
-    public static String getMemberProfileSheetName(){
-        return MEMBER_PROFILES_SHEET;
+    public Sheet getMemeberSheet(){
+        Sheet memberSheet = workbook.getSheet(MEMBER_PROFILES_SHEET); // Get the sheet called member profile
+        return memberSheet;
     }
 
     public static boolean doesFileExist() {
@@ -185,7 +183,7 @@ public class ProfilesUtil {
 
     public List<Shift> getSchedule(String member){
         List<Shift> schedules = new ArrayList<>();
-        Sheet memberSheet = workbook.getSheet(MEMBER_PROFILES_SHEET); // Get the sheet called member profile
+        Sheet memberSheet = getMemeberSheet(); // Get the sheet called member profile
         if (memberSheet != null) {
             for (Row row : memberSheet) { // for each row in memberSheet
                 if (row.getRowNum() == 0) continue; // Skip header row
