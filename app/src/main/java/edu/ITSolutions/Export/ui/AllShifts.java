@@ -8,7 +8,9 @@ import edu.ITSolutions.Export.Shift;
 import edu.ITSolutions.Export.util.ProfilesUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
@@ -17,6 +19,7 @@ public class AllShifts{
 
     private static VBox vbox;
     private static HBox hbox;
+    private static HBox hboxLeft;
     private static AllShiftShower allShiftShower;
     private static ProfilesUtil profilesUtil;
 
@@ -33,12 +36,28 @@ public class AllShifts{
     public VBox createAllShiftsLayout(){
         vbox = new VBox();
         hbox = new HBox();
+        hboxLeft = new HBox();
         allShiftShower.setAllShiftList(getAllShifts());
         hbox.getChildren().setAll(allShiftShower);
         allShiftShower.refreshTables();
         hbox.setAlignment(Pos.CENTER);
-        vbox.getChildren().setAll(hbox);
-        vbox.setAlignment(Pos.CENTER);
+
+        Button importButton = new Button("Confirm");
+        importButton.getStyleClass().add("allShiftTabButtons");
+
+        Button cancelButton = new Button("Cancel");
+        cancelButton.getStyleClass().add("allShiftTabButtons");
+        
+        hboxLeft.getChildren().setAll(importButton,cancelButton);
+        hboxLeft.setSpacing(50);
+
+        hboxLeft.setAlignment(Pos.CENTER);
+
+        Insets insetVbox = new Insets(20,20,20,20);
+        vbox.getChildren().setAll(hbox,hboxLeft);
+        vbox.setPadding(insetVbox);
+        vbox.setSpacing(50);
+        vbox.setAlignment(Pos.TOP_CENTER);
         return vbox;
     }
 

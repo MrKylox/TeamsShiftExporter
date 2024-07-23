@@ -29,6 +29,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
@@ -69,6 +70,7 @@ public class MainUI {
     private VBox importVBox;
     private VBox vbox;
     private TabPane tabPane;
+    private Tab allShiftTab;
 
     public MainUI() {
         try {
@@ -84,8 +86,9 @@ public class MainUI {
         }
     }
 
-    public MainUI(TabPane tabPane){
+    public MainUI(TabPane tabPane, Tab allShiftTab){
         this.tabPane = tabPane;
+        this.allShiftTab = allShiftTab;
         try {
             profilesUtil = new ProfilesUtil();
             profileController = new ProfileController();
@@ -93,7 +96,7 @@ public class MainUI {
             memberShiftShower = new MemberShiftShower();
             selectedGroupTable = new SelectedGroupTable();
             allShiftShower = new AllShiftShower();
-            app = new App(tabPane);
+            app = new App(tabPane, allShiftTab);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -303,7 +306,7 @@ public class MainUI {
                                 seasonUI.getSeason());
                         System.out.println("Profile saved");
                     } else {
-                        System.out.println("Shift overlaps with an existing shift.");
+                        System.out.println("Shift overlaps with an existing shift."); 
                     }
                 }
             }
@@ -373,7 +376,7 @@ public class MainUI {
         generateAllShiftsButton.setOnAction(e -> {
             if(tabPane != null){
                 generateShiftsForAllMembers();
-                app.switchToAllShiftsTab(tabPane);
+                app.switchToAllShiftsTab(tabPane,allShiftTab);
             }
             else{
                 System.err.println("Tab pane is null");

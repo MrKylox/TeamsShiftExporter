@@ -18,8 +18,9 @@ public class App extends Application {
     private Tab allShiftTab;
     private Tab mainTab;
 
-    public App(TabPane tabPane){
+    public App(TabPane tabPane, Tab allShiftTab){
         this.tabPane = tabPane;
+        this.allShiftTab = allShiftTab;
     }
 
     public App(){}
@@ -35,18 +36,10 @@ public class App extends Application {
         mainTabLabel.setMinWidth(150);
         mainTab.setGraphic(mainTabLabel);
         
-        // Create an instance of MainUI
-        MainUI mainUI = new MainUI(tabPane);
+
         AllShifts allShifts = new AllShifts();
         AllShiftShower allShiftShower = new AllShiftShower();
 
-        // Set the MainUI layout as the content of the tab
-        mainTab.setContent(mainUI.createMainLayout());
-        mainTab.setClosable(false); // Make the tab non-closable
-        
-        // Set the MainUI layout as the content of the tab
-        mainTab.setContent(mainUI.createMainLayout());
-        
         // Add the tab to the TabPane
         
         allShiftTab = new Tab();
@@ -58,6 +51,18 @@ public class App extends Application {
         allShiftTab.setContent(allShifts.createAllShiftsLayout());
         allShiftTab.setClosable(false);
 
+        // Create an instance of MainUI
+        MainUI mainUI = new MainUI(tabPane,allShiftTab);
+
+        // Set the MainUI layout as the content of the tab
+        mainTab.setContent(mainUI.createMainLayout());
+        mainTab.setClosable(false); // Make the tab non-closable
+        
+        // Set the MainUI layout as the content of the tab
+        mainTab.setContent(mainUI.createMainLayout());
+        
+        
+
         tabPane.getTabs().addAll(mainTab,allShiftTab);
 
 
@@ -65,7 +70,6 @@ public class App extends Application {
             @Override
             public void changed(ObservableValue<? extends Tab> observableValue, Tab oldTab, Tab newTab){
                 if (newTab == allShiftTab){
-                    System.out.println("STab: ");//debugging
                     allShiftShower.refreshTables();
                 }
             }
@@ -83,6 +87,7 @@ public class App extends Application {
         String css = getClass().getResource("/styles.css").toExternalForm();
         if (css != null) {
             scene.getStylesheets().add(css);
+            System.out.println("added css file");
         } else {
             System.out.println("CSS file not found.");
         }
@@ -106,7 +111,21 @@ public class App extends Application {
         launch(args);
     }
 
-    public void switchToAllShiftsTab(TabPane tab){
+    public void switchToAllShiftsTab(TabPane tab, Tab allShiftTab){
+        if(tab == null ){
+            System.err.println("Tab is null");
+            return;
+        }
+
+        if(allShiftTab == null){
+            System.err.println(" allshift tab is null");
+            return; 
+        }
+        
+        if(!tab.getTabs().contains(allShiftTab)){
+            tab.getTabs().add(allShiftTab);
+        }
+
         tab.getSelectionModel().select(1);
     }
 
