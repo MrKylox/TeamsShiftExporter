@@ -62,8 +62,6 @@ public class AllShifts{
         allShiftShower.setAllShiftList(allMemberShiftList);
         hbox.getChildren().setAll(allShiftShower);
 
-
-
         return allMemberShiftList;
     }
 }

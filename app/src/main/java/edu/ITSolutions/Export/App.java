@@ -14,20 +14,29 @@ import javafx.scene.control.TabPane;
 import javafx.stage.Stage;
 
 public class App extends Application {
+    private TabPane tabPane;
+    private Tab allShiftTab;
+    private Tab mainTab;
+
+    public App(TabPane tabPane){
+        this.tabPane = tabPane;
+    }
+
+    public App(){}
     @Override
     public void start(Stage primaryStage) {
 // Create a TabPane
-        TabPane tabPane = new TabPane();
+        tabPane = new TabPane();
 
         // Create a new tab
-        Tab mainTab = new Tab();
+        mainTab = new Tab();
         
         Label mainTabLabel = new Label("Main");
         mainTabLabel.setMinWidth(150);
         mainTab.setGraphic(mainTabLabel);
         
         // Create an instance of MainUI
-        MainUI mainUI = new MainUI();
+        MainUI mainUI = new MainUI(tabPane);
         AllShifts allShifts = new AllShifts();
         AllShiftShower allShiftShower = new AllShiftShower();
 
@@ -40,7 +49,7 @@ public class App extends Application {
         
         // Add the tab to the TabPane
         
-        Tab allShiftTab = new Tab();
+        allShiftTab = new Tab();
 
         Label allShiftDisplayLabel = new Label("All Shifts");
         allShiftDisplayLabel.setMinWidth(150);
@@ -51,11 +60,12 @@ public class App extends Application {
 
         tabPane.getTabs().addAll(mainTab,allShiftTab);
 
+
         tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
             @Override
             public void changed(ObservableValue<? extends Tab> observableValue, Tab oldTab, Tab newTab){
                 if (newTab == allShiftTab){
-                    System.out.println("Selected All Shifts");//debugging
+                    System.out.println("STab: ");//debugging
                     allShiftShower.refreshTables();
                 }
             }
@@ -94,5 +104,13 @@ public class App extends Application {
             System.out.println("Excel file already exists. Reading data...");
         }
         launch(args);
+    }
+
+    public void switchToAllShiftsTab(TabPane tab){
+        tab.getSelectionModel().select(1);
+    }
+
+    public void switchToMainTab(TabPane tab){
+        tab.getSelectionModel().select(0);
     }
 }

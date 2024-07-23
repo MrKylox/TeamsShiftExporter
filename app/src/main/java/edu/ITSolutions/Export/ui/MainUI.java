@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import edu.ITSolutions.Export.Controller.ProfileController;
 import edu.ITSolutions.Export.Controller.ScheduleController;
+import edu.ITSolutions.Export.App;
 import edu.ITSolutions.Export.Member;
 import edu.ITSolutions.Export.Shift;
 import edu.ITSolutions.Export.util.ExcelUtil;
@@ -28,6 +29,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.TabPane;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
@@ -61,10 +63,12 @@ public class MainUI {
     private ComboBox<GroupSelector<String>> cb = new ComboBox<>();
     private SelectedGroupTable selectedGroupTable;
     private AllShiftShower allShiftShower;
+    private App app;
 
     // Declare importVBox as a class member variable
     private VBox importVBox;
     private VBox vbox;
+    private TabPane tabPane;
 
     public MainUI() {
         try {
@@ -74,11 +78,28 @@ public class MainUI {
             memberShiftShower = new MemberShiftShower();
             selectedGroupTable = new SelectedGroupTable();
             allShiftShower = new AllShiftShower();
-
+            app = new App();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    public MainUI(TabPane tabPane){
+        this.tabPane = tabPane;
+        try {
+            profilesUtil = new ProfilesUtil();
+            profileController = new ProfileController();
+            customCheckBox = new CustomCheckBox();
+            memberShiftShower = new MemberShiftShower();
+            selectedGroupTable = new SelectedGroupTable();
+            allShiftShower = new AllShiftShower();
+            app = new App(tabPane);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    
 
     public VBox createMainLayout() {
         vbox = new VBox();
@@ -350,7 +371,18 @@ public class MainUI {
         });
 
         generateAllShiftsButton.setOnAction(e -> {
-            generateShiftsForAllMembers();
+            if(tabPane != null){
+                generateShiftsForAllMembers();
+                app.switchToAllShiftsTab(tabPane);
+            }
+            else{
+                System.err.println("Tab pane is null");
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Failed");
+                alert.setHeaderText("Failed to generate shifts for all member");
+                alert.setContentText("Program failure occured, please restart the app");
+                alert.showAndWait();
+            }
         });
 
         StackPane toggleButtonsPane = new StackPane(editSeasonsButton, saveSeasonButton);
@@ -540,6 +572,8 @@ public class MainUI {
                 }
             }
         }
+
+
     }
 
     private void generateShiftForGroup(List<String> selectedGroup, ObservableList<Member> memberList) {
@@ -553,7 +587,7 @@ public class MainUI {
     private void updateMemberList(List<GroupSelector<String>> selectedGroup, ObservableList<Member> memberList) {
         ObservableList<Member> members = FXCollections.observableArrayList();
         for (GroupSelector<String> groupSelector : selectedGroup) {
-            members.add(groupSelector.getItem());
+            // members.add(groupSelector.getItem());
         }
         selectedGroupTable.setMemberList(members);
     }
