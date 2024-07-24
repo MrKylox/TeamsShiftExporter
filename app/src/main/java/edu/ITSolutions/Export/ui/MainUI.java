@@ -455,6 +455,7 @@ public class MainUI {
         }
     }
 
+    
     public void generateShiftsForAllMembers() {
         List<Member> allMembers = memberList;
         ScheduleController scheduleController = null;   
@@ -472,6 +473,9 @@ public class MainUI {
         }
 
         if (scheduleController != null) {
+            System.out.println("ScheduleController: "+ scheduleController);
+            System.out.println("Members: "+ allMembers);
+
             for (Member member : allMembers) {
                 List<LocalDate> receivedDates = new ArrayList<>();
                 List<Shift> receivedSchedule = profilesUtil.getSchedule(member.getName());
@@ -620,5 +624,9 @@ public class MainUI {
                 System.out.println("Shifts generated and saved");
             }
         });
+    }
+
+    public List<Member> getMemberList(){
+        return memberList;
     }
 }
