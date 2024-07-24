@@ -10,3 +10,9 @@
 .label-blue {
     -fx-text-fill: blue;
 }
+
+.allShiftTabButtons{
+    -fx-pref-width : 150px;
+    -fx-pref-height : 40px;
+    -fx-text-fill : black;
+}

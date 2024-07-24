@@ -14,33 +14,29 @@ import javafx.scene.control.TabPane;
 import javafx.stage.Stage;
 
 public class App extends Application {
+    private TabPane tabPane;
+    private Tab allShiftTab;
+    private Tab mainTab;
+
     @Override
     public void start(Stage primaryStage) {
 // Create a TabPane
-        TabPane tabPane = new TabPane();
+        tabPane = new TabPane();
 
         // Create a new tab
-        Tab mainTab = new Tab();
+        mainTab = new Tab();
         
         Label mainTabLabel = new Label("Main");
         mainTabLabel.setMinWidth(150);
         mainTab.setGraphic(mainTabLabel);
         
-        // Create an instance of MainUI
-        MainUI mainUI = new MainUI();
+
         AllShifts allShifts = new AllShifts();
         AllShiftShower allShiftShower = new AllShiftShower();
 
-        // Set the MainUI layout as the content of the tab
-        mainTab.setContent(mainUI.createMainLayout());
-        mainTab.setClosable(false); // Make the tab non-closable
-        
-        // Set the MainUI layout as the content of the tab
-        mainTab.setContent(mainUI.createMainLayout());
-        
         // Add the tab to the TabPane
         
-        Tab allShiftTab = new Tab();
+        allShiftTab = new Tab();
 
         Label allShiftDisplayLabel = new Label("All Shifts");
         allShiftDisplayLabel.setMinWidth(150);
@@ -49,13 +45,27 @@ public class App extends Application {
         allShiftTab.setContent(allShifts.createAllShiftsLayout());
         allShiftTab.setClosable(false);
 
-        tabPane.getTabs().addAll(mainTab,allShiftTab);
+        // Create an instance of MainUI
+        MainUI mainUI = new MainUI();
+
+        // Set the MainUI layout as the content of the tab
+        mainTab.setContent(mainUI.createMainLayout());
+        mainTab.setClosable(false); // Make the tab non-closable
+        
+        // Set the MainUI layout as the content of the tab
+        mainTab.setContent(mainUI.createMainLayout());
+
+        appContext.setTabPane(tabPane);
+        appContext.setAllShiftTab(allShiftTab);
+        appContext.setMainTab(mainTab);
+
+        tabPane.getTabs().addAll(mainTab);
+
 
         tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
             @Override
             public void changed(ObservableValue<? extends Tab> observableValue, Tab oldTab, Tab newTab){
-                if (newTab == allShiftTab){
-                    System.out.println("Selected All Shifts");//debugging
+                if (newTab == mainTab){
                     allShiftShower.refreshTables();
                 }
             }
@@ -73,6 +83,7 @@ public class App extends Application {
         String css = getClass().getResource("/styles.css").toExternalForm();
         if (css != null) {
             scene.getStylesheets().add(css);
+            System.out.println("added css file");
         } else {
             System.out.println("CSS file not found.");
         }
@@ -95,4 +106,78 @@ public class App extends Application {
         }
         launch(args);
     }
+
+    public static class appContext{
+        private static TabPane tabPane; 
+        private static Tab allShiftTab;
+        private static Tab main;
+
+        public static void setTabPane(TabPane tabPane){
+            appContext.tabPane = tabPane;
+        }
+
+        public static TabPane getTabPane(){
+            return tabPane;
+        }
+
+        public static void setAllShiftTab(Tab newTab){
+            appContext.allShiftTab = newTab;
+        }
+
+        public static Tab getAllShiftTab(){
+            return allShiftTab;
+        }
+
+        public static void setMainTab(Tab newTab){
+            appContext.main = newTab;
+        }
+
+        public static Tab getMainTab(){
+            return main;
+        }
+
+    }
+
+    public void switchToAllShiftsTab(TabPane tabPane, Tab allShiftTab){
+        if(tabPane == null ){
+            System.err.println("TabPane is null");
+            return;
+        }
+
+        if(allShiftTab == null){
+            System.err.println(" allshift tab is null");
+            return; 
+        }
+        
+        if(!tabPane.getTabs().contains(allShiftTab)){
+            tabPane.getTabs().add(allShiftTab);
+        }
+
+        tabPane.getSelectionModel().clearAndSelect(1);
+
+    }
+
+    public void switchToMainTab(TabPane tabPane, Tab mainTab){
+        if(tabPane == null ){
+            System.err.println("TabPane is null");
+            return;
+        }
+
+        if(mainTab == null){
+            System.err.println(" mainTab tab is null");
+            return; 
+        }
+        
+        if(!tabPane.getTabs().contains(mainTab)){
+            tabPane.getTabs().add(mainTab);
+        }
+
+        removeTab(tabPane, appContext.getAllShiftTab());
+    }
+    public void removeTab(TabPane tabPane, Tab tab){
+        if(tabPane.getTabs().contains(tab)){
+            tabPane.getTabs().remove(tab);
+        }
+    }
+    
 }

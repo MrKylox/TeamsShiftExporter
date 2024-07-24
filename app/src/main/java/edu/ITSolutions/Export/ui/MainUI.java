@@ -9,8 +9,10 @@ import java.util.Optional;
 
 import edu.ITSolutions.Export.Controller.ProfileController;
 import edu.ITSolutions.Export.Controller.ScheduleController;
+import edu.ITSolutions.Export.App;
 import edu.ITSolutions.Export.Member;
 import edu.ITSolutions.Export.Shift;
+import edu.ITSolutions.Export.App.appContext;
 import edu.ITSolutions.Export.util.ExcelUtil;
 import edu.ITSolutions.Export.util.ProfilesUtil;
 import javafx.collections.FXCollections;
@@ -61,6 +63,7 @@ public class MainUI {
     private ComboBox<GroupSelector<String>> cb = new ComboBox<>();
     private SelectedGroupTable selectedGroupTable;
     private AllShiftShower allShiftShower;
+    private App app;
 
     // Declare importVBox as a class member variable
     private VBox importVBox;
@@ -74,11 +77,14 @@ public class MainUI {
             memberShiftShower = new MemberShiftShower();
             selectedGroupTable = new SelectedGroupTable();
             allShiftShower = new AllShiftShower();
-
+            app = new App();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+
+    
 
     public VBox createMainLayout() {
         vbox = new VBox();
@@ -151,7 +157,7 @@ public class MainUI {
             File selectedFile = fileChooser.showOpenDialog(new Stage());
             if (selectedFile != null) {
                 try {
-                    excelUtil = new ExcelUtil(selectedFile);
+                    excelUtil = ExcelUtil.initalize(selectedFile);
                     memberList.setAll(excelUtil.getMembers());
                     vbox.setVisible(true);
                     importVBox.setVisible(false);
@@ -282,7 +288,7 @@ public class MainUI {
                                 seasonUI.getSeason());
                         System.out.println("Profile saved");
                     } else {
-                        System.out.println("Shift overlaps with an existing shift.");
+                        System.out.println("Shift overlaps with an existing shift."); 
                     }
                 }
             }
@@ -350,7 +356,18 @@ public class MainUI {
         });
 
         generateAllShiftsButton.setOnAction(e -> {
-            generateShiftsForAllMembers();
+            if(appContext.getTabPane() != null){
+                // generateShiftsForAllMembers();
+                app.switchToAllShiftsTab(appContext.getTabPane(),appContext.getAllShiftTab());
+            }
+            else{
+                System.err.println("Tab pane is null");
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Failed");
+                alert.setHeaderText("Failed to generate shifts for all member");
+                alert.setContentText("Program failure occured, please restart the app");
+                alert.showAndWait();
+            }
         });
 
         StackPane toggleButtonsPane = new StackPane(editSeasonsButton, saveSeasonButton);
@@ -408,19 +425,15 @@ public class MainUI {
         if (db.hasFiles()) {
             success = true;
             for (File file : db.getFiles()) {
-                try {
-                    excelUtil = new ExcelUtil(file);
-                    memberList.setAll(excelUtil.getMembers());
-                    vbox.setVisible(true);
-                    importVBox.setVisible(false);
-                    for (Member member : memberList) {
-                        options.add(new GroupSelector<>(member.getName()));
-                    }
-                    cb.setItems(options);
-                    System.out.println("File imported via drag-and-drop");
-                } catch (IOException e) {
-                    e.printStackTrace();
+                ExcelUtil.getInstance();
+                memberList.setAll(excelUtil.getMembers());
+                vbox.setVisible(true);
+                importVBox.setVisible(false);
+                for (Member member : memberList) {
+                    options.add(new GroupSelector<>(member.getName()));
                 }
+                cb.setItems(options);
+                System.out.println("File imported via drag-and-drop");
             }
         }
         event.setDropCompleted(success);
@@ -442,13 +455,17 @@ public class MainUI {
         }
     }
 
-    private void generateShiftsForAllMembers() {
+    
+    public void generateShiftsForAllMembers() {
         List<Member> allMembers = memberList;
-        ScheduleController scheduleController = null;
+        ScheduleController scheduleController = null;   
 
         try {
             profilesUtil = new ProfilesUtil();
+            excelUtil = ExcelUtil.getInstance();
             scheduleController = new ScheduleController(excelUtil.getWorkbook());
+            memberList.setAll(excelUtil.getMembers());
+
             excelUtil.clearSheetExceptHeader();
             System.out.println("Schedule Creation Started");
         } catch (IOException e1) {
@@ -456,6 +473,9 @@ public class MainUI {
         }
 
         if (scheduleController != null) {
+            System.out.println("ScheduleController: "+ scheduleController);
+            System.out.println("Members: "+ allMembers);
+
             for (Member member : allMembers) {
                 List<LocalDate> receivedDates = new ArrayList<>();
                 List<Shift> receivedSchedule = profilesUtil.getSchedule(member.getName());
@@ -488,8 +508,11 @@ public class MainUI {
                 }
             }
             try {
+                System.out.println("Saving file...");
                 excelUtil.save();
+                System.out.println("Saved successfully!");
             } catch (IOException e) {
+                System.err.println("Error while generating shfit for all members: " + e);
             }
         }
     }
@@ -540,6 +563,8 @@ public class MainUI {
                 }
             }
         }
+
+
     }
 
     private void generateShiftForGroup(List<String> selectedGroup, ObservableList<Member> memberList) {
@@ -553,7 +578,7 @@ public class MainUI {
     private void updateMemberList(List<GroupSelector<String>> selectedGroup, ObservableList<Member> memberList) {
         ObservableList<Member> members = FXCollections.observableArrayList();
         for (GroupSelector<String> groupSelector : selectedGroup) {
-            members.add(groupSelector.getItem());
+            // members.add(groupSelector.getItem());
         }
         selectedGroupTable.setMemberList(members);
     }
@@ -599,5 +624,9 @@ public class MainUI {
                 System.out.println("Shifts generated and saved");
             }
         });
+    }
+
+    public List<Member> getMemberList(){
+        return memberList;
     }
 }
