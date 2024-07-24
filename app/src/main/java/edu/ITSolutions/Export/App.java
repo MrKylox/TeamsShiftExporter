@@ -8,6 +8,8 @@ import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -65,9 +67,39 @@ public class App extends Application {
         tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
             @Override
             public void changed(ObservableValue<? extends Tab> observableValue, Tab oldTab, Tab newTab){
+
                 if (newTab == mainTab){
-                    allShiftShower.refreshTables();
+                    System.out.println("MainTab clicked");
+
+                    if(appContext.getConfirmed()){
+                        System.out.println("Confirmed");
+                        appContext.setConfirmed(false);
+                        // switchToMainTab(appContext.getTabPane(), appContext.getAllShiftTab());
+                        return;
+                    }
+                    else{
+                        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                        alert.setTitle("Confirmation");
+                        alert.setHeaderText("Generated Shifts:");
+
+                        alert.showAndWait().ifPresent(response -> {
+                            if(response == ButtonType.OK){
+                                // appContext.setConfirmed(true);
+                                System.out.println("Ok Clicked");
+                                appContext.setConfirmed(false);
+                            } 
+                            else{
+                                appContext.getTabPane().getSelectionModel().select(appContext.getAllShiftTab());
+                                appContext.setConfirmed(false);
+                            }
+                        });
+                    }
+                    
+                    // switchToMainTab(appContext.getTabPane(), appContext.getAllShiftTab());
                 }
+            
+
+                // tabPane.getSelectionModel().selectedItemProperty().addListener(this);
             }
         });
 
@@ -111,6 +143,7 @@ public class App extends Application {
         private static TabPane tabPane; 
         private static Tab allShiftTab;
         private static Tab main;
+        private static boolean confirmed = false;
 
         public static void setTabPane(TabPane tabPane){
             appContext.tabPane = tabPane;
@@ -134,6 +167,14 @@ public class App extends Application {
 
         public static Tab getMainTab(){
             return main;
+        }
+
+        public static void setConfirmed(Boolean confirmed) {
+            appContext.confirmed = confirmed;
+        }
+
+        public static Boolean getConfirmed(){
+            return confirmed;
         }
 
     }

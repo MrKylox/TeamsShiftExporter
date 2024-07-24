@@ -22,7 +22,7 @@ public class AllShifts{
 
     private static VBox vbox;
     private static HBox hbox;
-    private static HBox hboxLeft;
+    private static HBox buttonContainer;
     private static AllShiftShower allShiftShower;
     private static ProfilesUtil profilesUtil;
     private static MainUI mainUI;
@@ -43,7 +43,7 @@ public class AllShifts{
     public VBox createAllShiftsLayout(){
         vbox = new VBox();
         hbox = new HBox();
-        hboxLeft = new HBox();
+        buttonContainer = new HBox();
         allShiftShower.setAllShiftList(getAllShifts());
         hbox.getChildren().setAll(allShiftShower);
         allShiftShower.refreshTables();
@@ -52,24 +52,34 @@ public class AllShifts{
         Button confirmButton = new Button("Confirm");
         confirmButton.getStyleClass().add("allShiftTabButtons");
 
-        confirmButton.setOnAction(e -> {
-            mainUI.generateShiftsForAllMembers();
-        });
-
         Button cancelButton = new Button("Cancel");
         cancelButton.getStyleClass().add("allShiftTabButtons");
+
+        Button doneButton = new Button("Done");
+        doneButton.getStyleClass().add("allShiftTabButtons");
+
+        confirmButton.setOnAction(e -> {
+            mainUI.generateShiftsForAllMembers();
+            buttonContainer.getChildren().removeAll(confirmButton,cancelButton);
+            buttonContainer.getChildren().addAll(doneButton);
+        });
 
         cancelButton.setOnAction(e -> {
             app.switchToMainTab(appContext.getTabPane(),appContext.getAllShiftTab());
         });
         
-        hboxLeft.getChildren().setAll(confirmButton,cancelButton);
-        hboxLeft.setSpacing(50);
+        doneButton.setOnAction(e -> {
+            app.switchToMainTab(appContext.getTabPane(), appContext.getAllShiftTab());
+            buttonContainer.getChildren().removeAll(confirmButton,cancelButton);
+        });
 
-        hboxLeft.setAlignment(Pos.CENTER);
+        buttonContainer.getChildren().setAll(confirmButton,cancelButton);
+        buttonContainer.setSpacing(50);
+
+        buttonContainer.setAlignment(Pos.CENTER);
 
         Insets insetVbox = new Insets(20,20,20,20);
-        vbox.getChildren().setAll(hbox,hboxLeft);
+        vbox.getChildren().setAll(hbox,buttonContainer);
         vbox.setPadding(insetVbox);
         vbox.setSpacing(50);
         vbox.setAlignment(Pos.TOP_CENTER);
