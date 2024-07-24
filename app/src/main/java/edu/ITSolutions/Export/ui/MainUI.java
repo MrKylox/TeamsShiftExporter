@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import edu.ITSolutions.Export.Controller.ProfileController;
 import edu.ITSolutions.Export.Controller.ScheduleController;
@@ -24,15 +25,14 @@ import javafx.geometry.VPos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
+import javafx.scene.control.TextArea;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -60,9 +60,8 @@ public class MainUI {
     private PositionUI positionUI;
     private ProfileController profileController;
     private CustomCheckBox customCheckBox;
-    private ComboBox<GroupSelector<String>> cb = new ComboBox<>();
-    private SelectedGroupTable selectedGroupTable;
     private AllShiftShower allShiftShower;
+    private MemberSelectionUI memberSelectionUI;
     private App app;
 
     // Declare importVBox as a class member variable
@@ -75,8 +74,8 @@ public class MainUI {
             profileController = new ProfileController();
             customCheckBox = new CustomCheckBox();
             memberShiftShower = new MemberShiftShower();
-            selectedGroupTable = new SelectedGroupTable();
             allShiftShower = new AllShiftShower();
+            memberSelectionUI = new MemberSelectionUI(memberList);
             app = new App();
         } catch (IOException e) {
             e.printStackTrace();
@@ -90,13 +89,10 @@ public class MainUI {
         vbox = new VBox();
         importVBox = new VBox();
         VBox mVBox = new VBox();
-
         GridPane gridPane = new GridPane();
         BorderPane borderPane = new BorderPane();
 
         Label importLabel = new Label("Import Excel File");
-
-        ObservableList<GroupSelector<String>> options = FXCollections.observableArrayList();
 
         Button importButton = new Button("Import");
         Button SaveProfileButton = new Button("Save Shift");
@@ -109,18 +105,13 @@ public class MainUI {
         Button cancelSeasonButton = new Button("Cancel");
 
         memberShiftShower = new MemberShiftShower();
-
         dayOfWeekUI = new DayOfWeekUI();
 
         gridPane.add(importLabel, 0, 0);
         gridPane.add(importButton, 0, 1);
-
         gridPane.setAlignment(Pos.CENTER);
-
-        // Centering elements within the GridPane
         GridPane.setHalignment(importLabel, HPos.CENTER);
         GridPane.setHalignment(importButton, HPos.CENTER);
-
         GridPane.setValignment(importLabel, VPos.CENTER);
         GridPane.setValignment(importButton, VPos.CENTER);
 
@@ -139,15 +130,12 @@ public class MainUI {
         Label endDateLabel = new Label("End Date:");
         endDateLabel.getStyleClass().add("label-blue");
 
-        // -- Editing Season dates -------------------------------------------
         saveSeasonButton.setVisible(false);
         startDatePicker.setVisible(false);
         endDatePicker.setVisible(false);
         startDateLabel.setVisible(false);
         endDateLabel.setVisible(false);
         cancelSeasonButton.setVisible(false);
-
-        // -- False visibility if there's no file imported in the beginning ----------------
         vbox.setVisible(false);
 
         Label seasonStartAndEnd = new Label();
@@ -162,10 +150,6 @@ public class MainUI {
                     vbox.setVisible(true);
                     importVBox.setVisible(false);
                     System.out.println("File imported");
-                    for (Member member : memberList) {
-                        options.add(new GroupSelector<>(member.getName()));
-                    }
-                    cb.setItems(options);
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
@@ -189,7 +173,6 @@ public class MainUI {
                 if (profilesUtil != null) {
                     updateShiftList();
                 }
-
             } else {
                 shiftList.clear();
             }
@@ -201,41 +184,8 @@ public class MainUI {
                 if (!receivedDates.isEmpty()) {
                     seasonStartAndEnd.setText(receivedDates.get(0) + " - " + receivedDates.get(1));
                 }
-
                 System.out.println("Season selected: " + newValue);
             }
-        });
-        
-        cb.setCellFactory(c -> {
-            ListCell<GroupSelector<String>> cell = new ListCell<>() {
-                @Override
-                protected void updateItem(GroupSelector<String> item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (!empty) {
-                        final CheckBox cb = new CheckBox(item.toString());
-                        cb.selectedProperty().bindBidirectional(item.checkProperty());
-                        setGraphic(cb);
-                    } else {
-                        setGraphic(null);
-                    }
-                }
-            };
-
-            cell.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> {
-                if (!cell.isEmpty()) {
-                    GroupSelector<String> item = cell.getItem();
-                    item.setCheck(!item.getCheck());
-                    StringBuilder sb = new StringBuilder();
-                    cb.getItems().filtered(f -> f.getCheck()).forEach(p -> sb.append(";").append(p.getItem()));
-                    String text = sb.length() > 0 ? sb.substring(1) : "";
-                    cb.setPromptText(text);
-                    List<GroupSelector<String>> selectedGroup = cb.getItems().filtered(GroupSelector::getCheck);
-                    updateMemberList(selectedGroup, memberList);
-
-                }
-            });
-
-            return cell;
         });
 
         editSeasonsButton.setOnAction(e -> {
@@ -350,10 +300,38 @@ public class MainUI {
         });
 
         generateGroupShiftButton.setOnAction(e -> {
-            List<String> selectedGroup = new ArrayList<>();
-            cb.getItems().filtered(GroupSelector::getCheck).forEach(item -> selectedGroup.add(item.getItem()));
-            generateShiftForGroup(selectedGroup, memberList);
+            List<String> selectedGroup = memberSelectionUI.getSelectedMembers();
+        
+            if (!selectedGroup.isEmpty()) {
+                String selectedMembers = String.join(", ", selectedGroup);
+        
+                // Create the confirmation alert
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Confirm Generation");
+                alert.setHeaderText("Selected Members for Shift Generation");
+                alert.setContentText("Are you sure you want to generate shifts for the following members?\n" + selectedMembers);
+        
+                // Set up the confirmation dialog buttons
+                ButtonType confirmButton = new ButtonType("Generate", ButtonBar.ButtonData.OK_DONE);
+                ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+                alert.getButtonTypes().setAll(confirmButton, cancelButton);
+        
+                // Show the dialog and wait for response
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.isPresent() && result.get() == confirmButton) {
+                    generateShiftForGroup(selectedGroup, memberList);
+                    System.out.println("Shifts generated for selected members.");
+                } else {
+                    System.out.println("Shift generation canceled.");
+                }
+            } else {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("No Members Selected");
+                alert.setHeaderText("Please select at least one member");
+                alert.showAndWait();
+            }
         });
+                
 
         generateAllShiftsButton.setOnAction(e -> {
             if(appContext.getTabPane() != null){
@@ -382,6 +360,7 @@ public class MainUI {
         HBox dOWBox = new HBox(new Label("Day Of Week: "), dayOfWeekUI);
         HBox memberBox = new HBox(new Label("Member: "), memberChoiceBox);
 
+        HBox groupSelectBox = memberSelectionUI.createMemberSelectionLayout();
         VBox test = new VBox(seasonStartAndEnd, datesBox);
         mVBox.getChildren().addAll(dOWBox, startTimeBox, endTimeBox, positionBox, profileBox);
         mVBox.setSpacing(10.0);
@@ -392,11 +371,11 @@ public class MainUI {
         borderPane.setCenter(mVBox);
 
         HBox generateShiftBox = new HBox(generateIndividualShiftButton, generateAllShiftsButton);
-        HBox generateGroupBox = new HBox(generateGroupShiftButton, cb);
+        HBox generateGroupBox = new HBox(generateGroupShiftButton, groupSelectBox);
         HBox memberShiftControls = new HBox(memberShiftShower, borderPane);
         HBox.setHgrow(memberShiftControls, Priority.ALWAYS);
 
-        vbox.getChildren().addAll(memberBox, memberShiftControls, generateShiftBox, generateGroupBox, selectedGroupTable);
+        vbox.getChildren().addAll(memberBox, memberShiftControls, generateShiftBox, generateGroupBox);
         importVBox.getChildren().addAll(gridPane);
         importVBox.setAlignment(Pos.CENTER);
 
@@ -420,7 +399,6 @@ public class MainUI {
 
     private void handleDragDropped(DragEvent event) {
         Dragboard db = event.getDragboard();
-        ObservableList<GroupSelector<String>> options = FXCollections.observableArrayList();
         boolean success = false;
         if (db.hasFiles()) {
             success = true;
@@ -429,10 +407,6 @@ public class MainUI {
                 memberList.setAll(excelUtil.getMembers());
                 vbox.setVisible(true);
                 importVBox.setVisible(false);
-                for (Member member : memberList) {
-                    options.add(new GroupSelector<>(member.getName()));
-                }
-                cb.setItems(options);
                 System.out.println("File imported via drag-and-drop");
             }
         }
@@ -573,60 +547,5 @@ public class MainUI {
                 generateShiftForSelectedMember(member);
             }
         }
-    }
-
-    private void updateMemberList(List<GroupSelector<String>> selectedGroup, ObservableList<Member> memberList) {
-        ObservableList<Member> members = FXCollections.observableArrayList();
-        for (GroupSelector<String> groupSelector : selectedGroup) {
-            // members.add(groupSelector.getItem());
-        }
-        selectedGroupTable.setMemberList(members);
-    }
-    
-
-    private void showGeneratedShiftsConfirmationDialog(List<Shift> generatedShifts) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation");
-        alert.setHeaderText("Generated Shifts:");
-
-        GridPane shiftDetailsGrid = new GridPane();
-        shiftDetailsGrid.setPadding(new Insets(10));
-        shiftDetailsGrid.setVgap(10);
-        shiftDetailsGrid.setHgap(10);
-
-        shiftDetailsGrid.addRow(0,
-                new Label("Member"),
-                new Label("Week Day"),
-                new Label("Start Time"),
-                new Label("End Time"),
-                new Label("Position"),
-                new Label("Season"));
-
-        int row = 1;
-        for (Shift shift : generatedShifts) {
-            shiftDetailsGrid.addRow(row++,
-                    new Label(shift.getMember()),
-                    new Label(shift.getWeekDay()),
-                    new Label(shift.getStartTime()),
-                    new Label(shift.getEndTime()),
-                    new Label(shift.getPosition()),
-                    new Label(shift.getSeason()));
-        }
-
-        alert.getDialogPane().setContent(shiftDetailsGrid);
-
-        alert.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
-                for (Shift shift : generatedShifts) {
-                    profilesUtil.saveProfile(shift.getMember(), shift.getWeekDay(), shift.getStartTime(), shift.getEndTime(), shift.getPosition(), shift.getSeason());
-                }
-                updateShiftList();
-                System.out.println("Shifts generated and saved");
-            }
-        });
-    }
-
-    public List<Member> getMemberList(){
-        return memberList;
     }
 }
