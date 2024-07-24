@@ -4,7 +4,10 @@ import java.io.IOException;
 
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+
+import edu.ITSolutions.Export.App;
 import edu.ITSolutions.Export.Shift;
+import edu.ITSolutions.Export.App.appContext;
 import edu.ITSolutions.Export.util.ProfilesUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,12 +25,16 @@ public class AllShifts{
     private static HBox hboxLeft;
     private static AllShiftShower allShiftShower;
     private static ProfilesUtil profilesUtil;
+    private static MainUI mainUI;
+    private static App app;
 
 
     public AllShifts(){
-        allShiftShower = new AllShiftShower();
         try {
+            allShiftShower = new AllShiftShower();
+            app = new App();
             profilesUtil = new ProfilesUtil();
+            mainUI = new MainUI();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -42,13 +49,21 @@ public class AllShifts{
         allShiftShower.refreshTables();
         hbox.setAlignment(Pos.CENTER);
 
-        Button importButton = new Button("Confirm");
-        importButton.getStyleClass().add("allShiftTabButtons");
+        Button confirmButton = new Button("Confirm");
+        confirmButton.getStyleClass().add("allShiftTabButtons");
+
+        confirmButton.setOnAction(e -> {
+            mainUI.generateShiftsForAllMembers();
+        });
 
         Button cancelButton = new Button("Cancel");
         cancelButton.getStyleClass().add("allShiftTabButtons");
+
+        cancelButton.setOnAction(e -> {
+            app.switchToMainTab(appContext.getTabPane(),appContext.getAllShiftTab());
+        });
         
-        hboxLeft.getChildren().setAll(importButton,cancelButton);
+        hboxLeft.getChildren().setAll(confirmButton,cancelButton);
         hboxLeft.setSpacing(50);
 
         hboxLeft.setAlignment(Pos.CENTER);

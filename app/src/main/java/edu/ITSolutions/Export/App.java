@@ -18,12 +18,6 @@ public class App extends Application {
     private Tab allShiftTab;
     private Tab mainTab;
 
-    public App(TabPane tabPane, Tab allShiftTab){
-        this.tabPane = tabPane;
-        this.allShiftTab = allShiftTab;
-    }
-
-    public App(){}
     @Override
     public void start(Stage primaryStage) {
 // Create a TabPane
@@ -52,7 +46,7 @@ public class App extends Application {
         allShiftTab.setClosable(false);
 
         // Create an instance of MainUI
-        MainUI mainUI = new MainUI(tabPane,allShiftTab);
+        MainUI mainUI = new MainUI();
 
         // Set the MainUI layout as the content of the tab
         mainTab.setContent(mainUI.createMainLayout());
@@ -60,16 +54,18 @@ public class App extends Application {
         
         // Set the MainUI layout as the content of the tab
         mainTab.setContent(mainUI.createMainLayout());
-        
-        
 
-        tabPane.getTabs().addAll(mainTab,allShiftTab);
+        appContext.setTabPane(tabPane);
+        appContext.setAllShiftTab(allShiftTab);
+        appContext.setMainTab(mainTab);
+
+        tabPane.getTabs().addAll(mainTab);
 
 
         tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
             @Override
             public void changed(ObservableValue<? extends Tab> observableValue, Tab oldTab, Tab newTab){
-                if (newTab == allShiftTab){
+                if (newTab == mainTab){
                     allShiftShower.refreshTables();
                 }
             }
@@ -111,9 +107,40 @@ public class App extends Application {
         launch(args);
     }
 
-    public void switchToAllShiftsTab(TabPane tab, Tab allShiftTab){
-        if(tab == null ){
-            System.err.println("Tab is null");
+    public static class appContext{
+        private static TabPane tabPane; 
+        private static Tab allShiftTab;
+        private static Tab main;
+
+        public static void setTabPane(TabPane tabPane){
+            appContext.tabPane = tabPane;
+        }
+
+        public static TabPane getTabPane(){
+            return tabPane;
+        }
+
+        public static void setAllShiftTab(Tab newTab){
+            appContext.allShiftTab = newTab;
+        }
+
+        public static Tab getAllShiftTab(){
+            return allShiftTab;
+        }
+
+        public static void setMainTab(Tab newTab){
+            appContext.main = newTab;
+        }
+
+        public static Tab getMainTab(){
+            return main;
+        }
+
+    }
+
+    public void switchToAllShiftsTab(TabPane tabPane, Tab allShiftTab){
+        if(tabPane == null ){
+            System.err.println("TabPane is null");
             return;
         }
 
@@ -122,14 +149,35 @@ public class App extends Application {
             return; 
         }
         
-        if(!tab.getTabs().contains(allShiftTab)){
-            tab.getTabs().add(allShiftTab);
+        if(!tabPane.getTabs().contains(allShiftTab)){
+            tabPane.getTabs().add(allShiftTab);
         }
 
-        tab.getSelectionModel().select(1);
+        tabPane.getSelectionModel().clearAndSelect(1);
+
     }
 
-    public void switchToMainTab(TabPane tab){
-        tab.getSelectionModel().select(0);
+    public void switchToMainTab(TabPane tabPane, Tab mainTab){
+        if(tabPane == null ){
+            System.err.println("TabPane is null");
+            return;
+        }
+
+        if(mainTab == null){
+            System.err.println(" mainTab tab is null");
+            return; 
+        }
+        
+        if(!tabPane.getTabs().contains(mainTab)){
+            tabPane.getTabs().add(mainTab);
+        }
+
+        removeTab(tabPane, appContext.getAllShiftTab());
     }
+    public void removeTab(TabPane tabPane, Tab tab){
+        if(tabPane.getTabs().contains(tab)){
+            tabPane.getTabs().remove(tab);
+        }
+    }
+    
 }

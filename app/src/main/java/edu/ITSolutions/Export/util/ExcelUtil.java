@@ -22,6 +22,7 @@ public class ExcelUtil {
     private final Workbook workbook;
     private final Map<String, Sheet> sheets = new HashMap<>();
     private final File originalFile;
+    private static volatile ExcelUtil instance;
 
     public ExcelUtil(File file) throws IOException {
         FileInputStream fileInputStream = new FileInputStream(file);
@@ -30,6 +31,26 @@ public class ExcelUtil {
             sheets.put(sheet.getSheetName(), sheet);
         }
         originalFile = file;
+    }
+
+    public static ExcelUtil initalize(File file) throws IOException{
+        if(instance == null){
+            synchronized(ExcelUtil.class){
+                if (instance == null){
+                    instance = new ExcelUtil(file);
+                    
+                }
+            }
+        }
+        return instance;
+    }
+
+    public static ExcelUtil getInstance(){
+        if(instance == null){
+            throw new IllegalStateException("ExcelUtil has not been initilized. Call ExcelUtil(file) first");
+        }
+
+        return instance;
     }
 
     public List<Member> getMembers() {
