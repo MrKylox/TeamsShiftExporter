@@ -28,6 +28,10 @@ public class AllShifts{
     private static MainUI mainUI;
     private static App app;
 
+    //buttons
+    private Button confirmButton;
+    private Button cancelButton;
+    private Button doneButton;
 
     public AllShifts(){
         try {
@@ -44,24 +48,28 @@ public class AllShifts{
         vbox = new VBox();
         hbox = new HBox();
         buttonContainer = new HBox();
-        allShiftShower.setAllShiftList(getAllShifts());
-        hbox.getChildren().setAll(allShiftShower);
+        allShiftShower.setAllShiftList(getAllShifts());//list of shifts found
+        hbox.getChildren().setAll(allShiftShower);//displays every shift in list
         allShiftShower.refreshTables();
         hbox.setAlignment(Pos.CENTER);
 
-        Button confirmButton = new Button("Confirm");
+        //-----------------------buttons--------------------------//
+        confirmButton = new Button("Confirm");
         confirmButton.getStyleClass().add("allShiftTabButtons");
 
-        Button cancelButton = new Button("Cancel");
+        cancelButton = new Button("Cancel");
         cancelButton.getStyleClass().add("allShiftTabButtons");
 
-        Button doneButton = new Button("Done");
+        doneButton = new Button("Done");
         doneButton.getStyleClass().add("allShiftTabButtons");
+        //--------------------------------------------------------//
 
+        //---------------------button actions---------------------//
         confirmButton.setOnAction(e -> {
             mainUI.generateShiftsForAllMembers();
-            buttonContainer.getChildren().removeAll(confirmButton,cancelButton);
-            buttonContainer.getChildren().addAll(doneButton);
+            showDoneButton();
+            appContext.setConfirmed(true);
+
         });
 
         cancelButton.setOnAction(e -> {
@@ -70,10 +78,11 @@ public class AllShifts{
         
         doneButton.setOnAction(e -> {
             app.switchToMainTab(appContext.getTabPane(), appContext.getAllShiftTab());
-            buttonContainer.getChildren().removeAll(confirmButton,cancelButton);
+            showConfirmCancelButtons();
         });
+        //-------------------------------------------------------//
 
-        buttonContainer.getChildren().setAll(confirmButton,cancelButton);
+        buttonContainer.getChildren().setAll(confirmButton,cancelButton);//storing in button container
         buttonContainer.setSpacing(50);
 
         buttonContainer.setAlignment(Pos.CENTER);
@@ -86,6 +95,17 @@ public class AllShifts{
         return vbox;
     }
 
+    //displays confirm and cancel buttons
+    public void showConfirmCancelButtons(){
+        buttonContainer.getChildren().setAll(confirmButton,cancelButton);
+    }
+
+    //displays done button
+    public void showDoneButton(){
+        buttonContainer.getChildren().setAll(doneButton);
+    }
+
+    //recieves existing list to update the table
     public ObservableList<Shift> getAllShifts(){
         Sheet memberShiftSheet = profilesUtil.getMemeberSheet();
         ObservableList<String> allMemberNameList = FXCollections.observableArrayList();

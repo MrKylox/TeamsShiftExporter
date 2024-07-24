@@ -1,6 +1,4 @@
 package edu.ITSolutions.Export;
-
-import edu.ITSolutions.Export.ui.AllShiftShower;
 import edu.ITSolutions.Export.ui.AllShifts;
 import edu.ITSolutions.Export.ui.MainUI;
 import edu.ITSolutions.Export.util.ProfilesUtil;
@@ -34,7 +32,7 @@ public class App extends Application {
         
 
         AllShifts allShifts = new AllShifts();
-        AllShiftShower allShiftShower = new AllShiftShower();
+        // AllShiftShower allShiftShower = new AllShiftShower();
 
         // Add the tab to the TabPane
         
@@ -63,43 +61,47 @@ public class App extends Application {
 
         tabPane.getTabs().addAll(mainTab);
 
-
+        //detects when tab options are clicked
         tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
             @Override
             public void changed(ObservableValue<? extends Tab> observableValue, Tab oldTab, Tab newTab){
-
+                //if main tab is clicked
                 if (newTab == mainTab){
                     System.out.println("MainTab clicked");
-
+                    //if confirmed then close the all shifts
                     if(appContext.getConfirmed()){
-                        System.out.println("Confirmed");
+                        System.out.println("Confirm clicked and now closing AllShifts tab...");
                         appContext.setConfirmed(false);
-                        // switchToMainTab(appContext.getTabPane(), appContext.getAllShiftTab());
+                        removeTab(tabPane,oldTab);//removes the old tab(all shifts tab) from view
+                        allShifts.showConfirmCancelButtons();//resets the button positions from previous tab
                         return;
                     }
                     else{
+                        //sends an alert message to confirm whether user wants to proceed with their actions
+                        //cancels the action of generating and saving shifts for all members
                         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                         alert.setTitle("Confirmation");
-                        alert.setHeaderText("Generated Shifts:");
+                        alert.setHeaderText("This will cancel generating the shifts for all memebers.");
+                        alert.setContentText("Would you like to proceed?");
 
+                        //wait until response is received
                         alert.showAndWait().ifPresent(response -> {
+                            //if response is ok, go back to main tab 
                             if(response == ButtonType.OK){
                                 // appContext.setConfirmed(true);
                                 System.out.println("Ok Clicked");
                                 appContext.setConfirmed(false);
+                                removeTab(tabPane,oldTab);
                             } 
+                            //cancels action
                             else{
                                 appContext.getTabPane().getSelectionModel().select(appContext.getAllShiftTab());
+                                // removeTab(tabPane,oldTab);
                                 appContext.setConfirmed(false);
                             }
                         });
                     }
-                    
-                    // switchToMainTab(appContext.getTabPane(), appContext.getAllShiftTab());
                 }
-            
-
-                // tabPane.getSelectionModel().selectedItemProperty().addListener(this);
             }
         });
 
@@ -212,7 +214,7 @@ public class App extends Application {
         if(!tabPane.getTabs().contains(mainTab)){
             tabPane.getTabs().add(mainTab);
         }
-
+        appContext.setConfirmed(true);
         removeTab(tabPane, appContext.getAllShiftTab());
     }
     public void removeTab(TabPane tabPane, Tab tab){
