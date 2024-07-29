@@ -98,7 +98,7 @@ public class ProfilesUtil {
         }
     }
 
-    public void saveProfile(String member, String day, String startTime, String endTime, String position, String season, String email) {
+    public void saveProfile(String member, String day, String startTime, String endTime, String position, String season) {
         Sheet memberSheet = workbook.getSheet(MEMBER_PROFILES_SHEET);
         int lastRowNum = memberSheet.getLastRowNum();
         Row row = memberSheet.createRow(lastRowNum + 1);
@@ -108,7 +108,6 @@ public class ProfilesUtil {
         row.createCell(3).setCellValue(endTime);
         row.createCell(4).setCellValue(position);
         row.createCell(5).setCellValue(season);
-        row.createCell(6).setCellValue(email);
         save();
     }
 

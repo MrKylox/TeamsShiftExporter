@@ -52,6 +52,7 @@ public GroupShift() { // Modify constructor to accept File parameter
 
         selectMembers.setOnAction(e -> {
             memberSelectionUI = new MemberSelectionUI(mainUI.getMembers()); //initiate member selection table importing memberList
+            System.out.println("Received Members: "+mainUI.getMembers());
             groupSelectBox = memberSelectionUI.createMemberSelectionLayout(); // create the boxes 
         });
          
@@ -64,7 +65,7 @@ public GroupShift() { // Modify constructor to accept File parameter
         confirmButton.getStyleClass().add("allShiftTabButtons");
 
         confirmButton.setOnAction(e -> {
-            mainUI.generateShiftforGroup(selectedGroup, mainUI.getMembers());
+            mainUI.generateShiftForGroup(selectedGroup, mainUI.getMembers());
         });
 
         Button cancelButton = new Button("Cancel");

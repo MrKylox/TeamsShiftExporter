@@ -1,6 +1,7 @@
 package edu.ITSolutions.Export.ui;
 
 import edu.ITSolutions.Export.Member;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -20,6 +21,7 @@ public class MemberSelectionUI {
     }
 
     public HBox createMemberSelectionLayout() {
+        System.out.println("List of Members:" + members);
 
         ListView<Member> memberListView = new ListView<>(members);
         memberListView.setCellFactory((ListView<Member> param) -> new ListCell<>() {

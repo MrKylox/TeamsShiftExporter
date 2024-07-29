@@ -25,10 +25,12 @@ import javafx.geometry.VPos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
@@ -59,13 +61,12 @@ public class MainUI {
     private ProfileController profileController;
     private CustomCheckBox customCheckBox;
     private AllShiftShower allShiftShower;
+    private MemberSelectionUI memberSelectionUI;
     private App app;
 
     // Declare importVBox as a class member variable
     private VBox importVBox;
     private VBox vbox;
-    private File sharedFile;
-    private GroupShift groupShift; 
 
     public MainUI() {
         try {
@@ -74,11 +75,15 @@ public class MainUI {
             customCheckBox = new CustomCheckBox();
             memberShiftShower = new MemberShiftShower();
             allShiftShower = new AllShiftShower();
+            memberSelectionUI = new MemberSelectionUI(memberList);
             app = new App();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+
+    
 
     public VBox createMainLayout() {
         vbox = new VBox();
@@ -139,19 +144,15 @@ public class MainUI {
             FileChooser fileChooser = new FileChooser();
             File selectedFile = fileChooser.showOpenDialog(new Stage());
             if (selectedFile != null) {
-                sharedFile = selectedFile; // Add this line to store the selected file
                 try {
                     excelUtil = ExcelUtil.initalize(selectedFile);
-                } catch (IOException e1) {
-                    e1.printStackTrace();
+                    memberList.setAll(excelUtil.getMembers());
+                    vbox.setVisible(true);
+                    importVBox.setVisible(false);
+                    System.out.println("File imported");
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
                 }
-                memberList.setAll(excelUtil.getMembers());
-                vbox.setVisible(true);
-                importVBox.setVisible(false);
-                System.out.println("File imported");
-
-                // Initialize GroupShift with sharedFile
-                groupShift = new GroupShift();
             }
         });
 
@@ -234,7 +235,7 @@ public class MainUI {
                     if (!overlaps) {
                         profilesUtil.saveProfile(selectedMember.getName(), selectedDay, startTimePicker.getTime(),
                                 endTimePicker.getTime(), positionUI.getPosition(),
-                                seasonUI.getSeason(), selectedMember.getEmail());
+                                seasonUI.getSeason());
                         System.out.println("Profile saved");
                     } else {
                         System.out.println("Shift overlaps with an existing shift."); 
@@ -313,9 +314,10 @@ public class MainUI {
             }
         });
                 
+
         generateAllShiftsButton.setOnAction(e -> {
             if(appContext.getTabPane() != null){
-                // generateShiftsForAllMembers();  
+                // generateShiftsForAllMembers();
                 app.switchToAllShiftsTab(appContext.getTabPane(),appContext.getAllShiftTab());
             }
             else{
@@ -340,7 +342,6 @@ public class MainUI {
         HBox dOWBox = new HBox(new Label("Day Of Week: "), dayOfWeekUI);
         HBox memberBox = new HBox(new Label("Member: "), memberChoiceBox);
 
-        // HBox groupSelectBox = memberSelectionUI.createMemberSelectionLayout();  delete this!-----------------
         VBox test = new VBox(seasonStartAndEnd, datesBox);
         mVBox.getChildren().addAll(dOWBox, startTimeBox, endTimeBox, positionBox, profileBox);
         mVBox.setSpacing(10.0);
@@ -351,7 +352,7 @@ public class MainUI {
         borderPane.setCenter(mVBox);
 
         HBox generateShiftBox = new HBox(generateIndividualShiftButton, generateAllShiftsButton);
-        HBox generateGroupBox = new HBox(generateGroupShiftButton /* , /*groupSelectBox */);
+        HBox generateGroupBox = new HBox(generateGroupShiftButton);
         HBox memberShiftControls = new HBox(memberShiftShower, borderPane);
         HBox.setHgrow(memberShiftControls, Priority.ALWAYS);
 
@@ -408,7 +409,7 @@ public class MainUI {
             allShiftShower.refreshTables();
         }
     }
-    
+
     public void generateShiftsForAllMembers() {
         List<Member> allMembers = memberList;
         ScheduleController scheduleController = null;   
@@ -516,21 +517,22 @@ public class MainUI {
                 }
             }
         }
+
+
     }
 
-    public void generateShiftforGroup(List<String> selectedGroup, ObservableList<Member> memberList) {
-        for (Member member : memberList) { // For each member in the member list
-            if (selectedGroup.contains(member.getName())) { // if the following member of the selected group is a member
-                generateShiftForSelectedMember(member); // then generate shift for the following member
+    public void generateShiftForGroup(List<String> selectedGroup, ObservableList<Member> memberList) {
+        for (Member member : memberList) {
+            if (selectedGroup.contains(member.getName())) {
+                generateShiftForSelectedMember(member);
             }
         }
     }
 
     public ObservableList<Member> getMembers(){
-        excelUtil = ExcelUtil.getInstance();
         ObservableList<Member> members = FXCollections.observableArrayList();
+        excelUtil = ExcelUtil.getInstance();
         members.setAll(excelUtil.getMembers());
         return members;
     }
-
 }
