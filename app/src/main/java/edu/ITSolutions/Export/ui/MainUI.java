@@ -298,34 +298,16 @@ public class MainUI {
         });
 
         generateGroupShiftButton.setOnAction(e -> {
-            List<String> selectedGroup = memberSelectionUI.getSelectedMembers();
-        
-            if (!selectedGroup.isEmpty()) {
-                String selectedMembers = String.join(", ", selectedGroup);
-        
-                // Create the confirmation alert
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setTitle("Confirm Generation");
-                alert.setHeaderText("Selected Members for Shift Generation");
-                alert.setContentText("Are you sure you want to generate shifts for the following members?\n" + selectedMembers);
-        
-                // Set up the confirmation dialog buttons
-                ButtonType confirmButton = new ButtonType("Generate", ButtonBar.ButtonData.OK_DONE);
-                ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-                alert.getButtonTypes().setAll(confirmButton, cancelButton);
-        
-                // Show the dialog and wait for response
-                Optional<ButtonType> result = alert.showAndWait();
-                if (result.isPresent() && result.get() == confirmButton) {
-                    generateShiftForGroup(selectedGroup, memberList);
-                    System.out.println("Shifts generated for selected members.");
-                } else {
-                    System.out.println("Shift generation canceled.");
-                }
-            } else {
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setTitle("No Members Selected");
-                alert.setHeaderText("Please select at least one member");
+            if(appContext.getTabPane() != null){
+                // generateShiftsForAllMembers();
+                app.switchToGroupShiftsTab(appContext.getTabPane(),appContext.getGroupShiftTab());
+            }
+            else{
+                System.err.println("Tab pane is null");
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Failed");
+                alert.setHeaderText("Failed to generate shifts for all member");
+                alert.setContentText("Program failure occured, please restart the app");
                 alert.showAndWait();
             }
         });
@@ -358,7 +340,6 @@ public class MainUI {
         HBox dOWBox = new HBox(new Label("Day Of Week: "), dayOfWeekUI);
         HBox memberBox = new HBox(new Label("Member: "), memberChoiceBox);
 
-        HBox groupSelectBox = memberSelectionUI.createMemberSelectionLayout();
         VBox test = new VBox(seasonStartAndEnd, datesBox);
         mVBox.getChildren().addAll(dOWBox, startTimeBox, endTimeBox, positionBox, profileBox);
         mVBox.setSpacing(10.0);
@@ -369,7 +350,7 @@ public class MainUI {
         borderPane.setCenter(mVBox);
 
         HBox generateShiftBox = new HBox(generateIndividualShiftButton, generateAllShiftsButton);
-        HBox generateGroupBox = new HBox(generateGroupShiftButton, groupSelectBox);
+        HBox generateGroupBox = new HBox(generateGroupShiftButton);
         HBox memberShiftControls = new HBox(memberShiftShower, borderPane);
         HBox.setHgrow(memberShiftControls, Priority.ALWAYS);
 
@@ -427,7 +408,6 @@ public class MainUI {
         }
     }
 
-    
     public void generateShiftsForAllMembers() {
         List<Member> allMembers = memberList;
         ScheduleController scheduleController = null;   
@@ -539,11 +519,18 @@ public class MainUI {
 
     }
 
-    private void generateShiftForGroup(List<String> selectedGroup, ObservableList<Member> memberList) {
+    public void generateShiftForGroup(List<String> selectedGroup, ObservableList<Member> memberList) {
         for (Member member : memberList) {
             if (selectedGroup.contains(member.getName())) {
                 generateShiftForSelectedMember(member);
             }
         }
+    }
+
+    public ObservableList<Member> getMembers(){
+        ObservableList<Member> members = FXCollections.observableArrayList();
+        excelUtil = ExcelUtil.getInstance();
+        members.setAll(excelUtil.getMembers());
+        return members;
     }
 }

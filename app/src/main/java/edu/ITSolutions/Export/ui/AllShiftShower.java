@@ -10,7 +10,7 @@ import javafx.scene.layout.HBox;
 
 public class AllShiftShower extends HBox {
     private final TableView<Shift> tableView;
-    private ObservableList<Shift> shiftList;
+    private final ObservableList<Shift> shiftList;
 
     //looks familiar? Yeah check MemberShiftShower.java
     public AllShiftShower() {
