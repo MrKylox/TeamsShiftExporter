@@ -6,8 +6,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import edu.ITSolutions.Export.App;
-import edu.ITSolutions.Export.Shift;
 import edu.ITSolutions.Export.App.appContext;
+import edu.ITSolutions.Export.Shift;
 import edu.ITSolutions.Export.util.ProfilesUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -45,6 +45,8 @@ public class AllShifts{
         hbox = new HBox();
         hboxLeft = new HBox();
         allShiftShower.setAllShiftList(getAllShifts());
+
+        
         hbox.getChildren().setAll(allShiftShower);
         allShiftShower.refreshTables();
         hbox.setAlignment(Pos.CENTER);
@@ -77,7 +79,7 @@ public class AllShifts{
     }
 
     public ObservableList<Shift> getAllShifts(){
-        Sheet memberShiftSheet = profilesUtil.getMemeberSheet();
+        Sheet memberShiftSheet = profilesUtil.getMemberSheet();
         ObservableList<String> allMemberNameList = FXCollections.observableArrayList();
         ObservableList<Shift> allMemberShiftList = FXCollections.observableArrayList();
 

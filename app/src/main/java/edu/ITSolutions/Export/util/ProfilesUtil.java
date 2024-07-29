@@ -24,7 +24,8 @@ public class ProfilesUtil {
     private static final String FILE_NAME = DIRECTORY_PATH + "\\MemberProfiles.xlsx";
     private static final String MEMBER_PROFILES_SHEET = "MemberProfiles";
     private static final String SEASON_PROFILES_SHEET = "SeasonProfiles";
-    private static final String[] MEMBER_HEADERS = {"Member", "WeekDay", "Start Time", "End Time", "Position", "Season"};
+    // private static final String MEMBER_NAMES = "MemberNames";
+    private static final String[] MEMBER_HEADERS = {"Member", "WeekDay", "Start Time", "End Time", "Position", "Season", "Email"};
     private static final String[] SEASON_HEADERS = {"Season", "Start Date", "End Date"};
     private final Workbook workbook;
     private final File profilesFile;
@@ -48,7 +49,7 @@ public class ProfilesUtil {
         return workbook;
     }
 
-    public Sheet getMemeberSheet(){
+    public Sheet getMemberSheet(){
         Sheet memberSheet = workbook.getSheet(MEMBER_PROFILES_SHEET); // Get the sheet called member profile
         return memberSheet;
     }
@@ -97,7 +98,7 @@ public class ProfilesUtil {
         }
     }
 
-    public void saveProfile(String member, String day, String startTime, String endTime, String position, String season) {
+    public void saveProfile(String member, String day, String startTime, String endTime, String position, String season, String email) {
         Sheet memberSheet = workbook.getSheet(MEMBER_PROFILES_SHEET);
         int lastRowNum = memberSheet.getLastRowNum();
         Row row = memberSheet.createRow(lastRowNum + 1);
@@ -107,6 +108,7 @@ public class ProfilesUtil {
         row.createCell(3).setCellValue(endTime);
         row.createCell(4).setCellValue(position);
         row.createCell(5).setCellValue(season);
+        row.createCell(6).setCellValue(email);
         save();
     }
 
@@ -183,7 +185,7 @@ public class ProfilesUtil {
 
     public List<Shift> getSchedule(String member){
         List<Shift> schedules = new ArrayList<>();
-        Sheet memberSheet = getMemeberSheet(); // Get the sheet called member profile
+        Sheet memberSheet = getMemberSheet(); // Get the sheet called member profile
         if (memberSheet != null) {
             for (Row row : memberSheet) { // for each row in memberSheet
                 if (row.getRowNum() == 0) continue; // Skip header row
