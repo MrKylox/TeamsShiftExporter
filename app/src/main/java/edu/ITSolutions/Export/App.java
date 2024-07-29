@@ -1,6 +1,4 @@
 package edu.ITSolutions.Export;
-
-import edu.ITSolutions.Export.ui.AllShiftShower;
 import edu.ITSolutions.Export.ui.AllShifts;
 import edu.ITSolutions.Export.ui.GroupShift;
 import edu.ITSolutions.Export.ui.MainUI;
@@ -9,6 +7,8 @@ import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -33,8 +33,13 @@ public class App extends Application {
         // Create an instance of UI
         MainUI mainUI = new MainUI();
         AllShifts allShifts = new AllShifts();
+
         AllShiftShower allShiftShower = new AllShiftShower();
         GroupShift groupShift = null;
+
+        // AllShiftShower allShiftShower = new AllShiftShower();
+
+        // Add the tab to the TabPane
         
         Label mainTabLabel = new Label("Main"); // create label called Main
         mainTabLabel.setMinWidth(150);
@@ -69,12 +74,46 @@ public class App extends Application {
         // Add the tab to the TabPane
         tabPane.getTabs().addAll(mainTab);
 
-
+        //detects when tab options are clicked
         tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
             @Override
             public void changed(ObservableValue<? extends Tab> observableValue, Tab oldTab, Tab newTab){
+                //if main tab is clicked
                 if (newTab == mainTab){
-                    allShiftShower.refreshTables();
+                    System.out.println("MainTab clicked");
+                    //if confirmed then close the all shifts
+                    if(appContext.getConfirmed()){
+                        System.out.println("Confirm clicked and now closing AllShifts tab...");
+                        appContext.setConfirmed(false);
+                        removeTab(tabPane,oldTab);//removes the old tab(all shifts tab) from view
+                        allShifts.showConfirmCancelButtons();//resets the button positions from previous tab
+                        return;
+                    }
+                    else{
+                        //sends an alert message to confirm whether user wants to proceed with their actions
+                        //cancels the action of generating and saving shifts for all members
+                        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                        alert.setTitle("Confirmation");
+                        alert.setHeaderText("This will cancel generating the shifts for all memebers.");
+                        alert.setContentText("Would you like to proceed?");
+
+                        //wait until response is received
+                        alert.showAndWait().ifPresent(response -> {
+                            //if response is ok, go back to main tab 
+                            if(response == ButtonType.OK){
+                                // appContext.setConfirmed(true);
+                                System.out.println("Ok Clicked");
+                                appContext.setConfirmed(false);
+                                removeTab(tabPane,oldTab);
+                            } 
+                            //cancels action
+                            else{
+                                appContext.getTabPane().getSelectionModel().select(appContext.getAllShiftTab());
+                                // removeTab(tabPane,oldTab);
+                                appContext.setConfirmed(false);
+                            }
+                        });
+                    }
                 }
             }
         });
@@ -120,6 +159,7 @@ public class App extends Application {
         private static Tab allShiftTab;
         private static Tab main;
         private static Tab groupShiftTab;
+        private static boolean confirmed = false;
 
         public static void setTabPane(TabPane tabPane){
             appContext.tabPane = tabPane;
@@ -151,6 +191,14 @@ public class App extends Application {
 
         public static Tab getGroupShiftTab(){
             return groupShiftTab;
+          
+        public static void setConfirmed(Boolean confirmed) {
+            appContext.confirmed = confirmed;
+        }
+
+        public static Boolean getConfirmed(){
+            return confirmed;
+
         }
 
     }
@@ -208,7 +256,7 @@ public class App extends Application {
         if(!tabPane.getTabs().contains(mainTab)){
             tabPane.getTabs().add(mainTab);
         }
-
+        appContext.setConfirmed(true);
         removeTab(tabPane, appContext.getAllShiftTab());
     }
     
