@@ -1,5 +1,4 @@
 package edu.ITSolutions.Export;
-import edu.ITSolutions.Export.ui.AllShiftShower;
 import edu.ITSolutions.Export.ui.AllShifts;
 import edu.ITSolutions.Export.ui.GroupShift;
 import edu.ITSolutions.Export.ui.MainUI;
@@ -35,9 +34,7 @@ public class App extends Application {
         MainUI mainUI = new MainUI();
         AllShifts allShifts = new AllShifts();
 
-        AllShiftShower allShiftShower = new AllShiftShower();
-        GroupShift groupShift = null;
-
+        // AllShiftShower allShiftShower = new AllShiftShower();
         // AllShiftShower allShiftShower = new AllShiftShower();
 
         // Add the tab to the TabPane
@@ -62,8 +59,6 @@ public class App extends Application {
         mainTab.setClosable(false); // Make the tab non-closable
 
         // Initialize GroupShift only after MainUI creates sharedFile
-        groupShift = new GroupShift(); // Initialize with shared file
-        groupShiftTab.setContent(groupShift.createGroupShiftLayout());
 
         groupShiftTab.setClosable(false);
 
@@ -84,7 +79,7 @@ public class App extends Application {
                     System.out.println("MainTab clicked");
                     //if confirmed then close the all shifts
                     if(appContext.getConfirmed()){
-                        System.out.println("Confirm clicked and now closing AllShifts tab...");
+                        System.out.println("Confirm clicked and now closing current tab...");
                         appContext.setConfirmed(false);
                         removeTab(tabPane,oldTab);//removes the old tab(all shifts tab) from view
                         allShifts.showConfirmCancelButtons();//resets the button positions from previous tab
@@ -95,7 +90,7 @@ public class App extends Application {
                         //cancels the action of generating and saving shifts for all members
                         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                         alert.setTitle("Confirmation");
-                        alert.setHeaderText("This will cancel generating the shifts for all memebers.");
+                        alert.setHeaderText("This will cancel generating shifts!!");
                         alert.setContentText("Would you like to proceed?");
 
                         //wait until response is received
@@ -109,7 +104,7 @@ public class App extends Application {
                             } 
                             //cancels action
                             else{
-                                appContext.getTabPane().getSelectionModel().select(appContext.getAllShiftTab());
+                                appContext.getTabPane().getSelectionModel().select(oldTab);
                                 // removeTab(tabPane,oldTab);
                                 appContext.setConfirmed(false);
                             }
@@ -234,6 +229,9 @@ public class App extends Application {
             return; 
         }
         
+        GroupShift groupShift = new GroupShift(); // Initialize with shared file
+        groupShiftTab.setContent(groupShift.createGroupShiftLayout());
+        
         if(!tabPane.getTabs().contains(groupShiftTab)){
             System.out.println("Switched to group shift tab");
             tabPane.getTabs().add(groupShiftTab);
@@ -243,7 +241,7 @@ public class App extends Application {
 
     }
 
-    public void switchToMainTab(TabPane tabPane, Tab mainTab){
+    public void switchToMainTab(TabPane tabPane, Tab mainTab, Tab currentTab){
         if(tabPane == null ){
             System.err.println("TabPane is null");
             return;
@@ -258,7 +256,7 @@ public class App extends Application {
             tabPane.getTabs().add(mainTab);
         }
         appContext.setConfirmed(true);
-        removeTab(tabPane, appContext.getAllShiftTab());
+        removeTab(tabPane, currentTab);
     }
     
     public void removeTab(TabPane tabPane, Tab tab){

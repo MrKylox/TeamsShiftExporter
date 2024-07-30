@@ -74,11 +74,12 @@ public class AllShifts{
         });
 
         cancelButton.setOnAction(e -> {
-            app.switchToMainTab(appContext.getTabPane(),appContext.getAllShiftTab());
+            app.switchToMainTab(appContext.getTabPane(),appContext.getMainTab(),appContext.getAllShiftTab());
         });
         
         doneButton.setOnAction(e -> {
-            app.switchToMainTab(appContext.getTabPane(), appContext.getAllShiftTab());
+            app.switchToMainTab(appContext.getTabPane(),appContext.getMainTab(),appContext.getAllShiftTab());
+
             showConfirmCancelButtons();
         });
         //-------------------------------------------------------//
