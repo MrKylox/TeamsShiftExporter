@@ -7,12 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import edu.ITSolutions.Export.App;
+import edu.ITSolutions.Export.App.appContext;
 import edu.ITSolutions.Export.Controller.ProfileController;
 import edu.ITSolutions.Export.Controller.ScheduleController;
-import edu.ITSolutions.Export.App;
 import edu.ITSolutions.Export.Member;
 import edu.ITSolutions.Export.Shift;
-import edu.ITSolutions.Export.App.appContext;
 import edu.ITSolutions.Export.util.ExcelUtil;
 import edu.ITSolutions.Export.util.ProfilesUtil;
 import javafx.collections.FXCollections;
@@ -26,7 +26,6 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
@@ -48,8 +47,6 @@ public class MainUI {
     private final ObservableList<Shift> shiftList = FXCollections.observableArrayList();
     private MemberShiftShower memberShiftShower;
     private ComboBox<Member> memberChoiceBox;
-    private DatePicker startDatePicker;
-    private DatePicker endDatePicker;
     private CustomTimePicker startTimePicker;
     private CustomTimePicker endTimePicker;
     private DayOfWeekUI dayOfWeekUI;
@@ -96,8 +93,6 @@ public class MainUI {
         Button generateGroupShiftButton = new Button("Generate Shifts For Selected Group");
         Button generateAllShiftsButton = new Button("Generate Shifts For All Members");
         Button editSeasonsButton = new Button("Edit Season");
-        Button saveSeasonButton = new Button("Save Season");
-        Button cancelSeasonButton = new Button("Cancel");
 
         memberShiftShower = new MemberShiftShower();
         dayOfWeekUI = new DayOfWeekUI();
@@ -114,23 +109,11 @@ public class MainUI {
         memberChoiceBox = new ComboBox<>(memberList);
         memberChoiceBox.setOnAction(e -> updateShiftList());
 
-        startDatePicker = new DatePicker();
-        endDatePicker = new DatePicker();
         seasonUI = new SeasonUI();
         positionUI = new PositionUI();
         startTimePicker = new CustomTimePicker();
         endTimePicker = new CustomTimePicker();
-        Label startDateLabel = new Label("Start Date:");
-        startDateLabel.getStyleClass().add("label-blue");
-        Label endDateLabel = new Label("End Date:");
-        endDateLabel.getStyleClass().add("label-blue");
 
-        saveSeasonButton.setVisible(false);
-        startDatePicker.setVisible(false);
-        endDatePicker.setVisible(false);
-        startDateLabel.setVisible(false);
-        endDateLabel.setVisible(false);
-        cancelSeasonButton.setVisible(false);
         vbox.setVisible(false);
 
         Label seasonStartAndEnd = new Label();
@@ -308,7 +291,6 @@ public class MainUI {
                 alert.showAndWait();
             }
         });
-                
 
         generateAllShiftsButton.setOnAction(e -> {
             if(appContext.getTabPane() != null){
@@ -325,31 +307,54 @@ public class MainUI {
             }
         });
 
-        StackPane toggleButtonsPane = new StackPane(editSeasonsButton, saveSeasonButton);
+        StackPane toggleButtonsPane = new StackPane(editSeasonsButton);
+        toggleButtonsPane.setAlignment(Pos.CENTER);
 
         HBox profileBox = new HBox(SaveProfileButton, deleteShiftButton);
+        profileBox.setAlignment(Pos.CENTER);
 
         HBox startTimeBox = new HBox(new Label("Start Time: "), startTimePicker);
         HBox endTimeBox = new HBox(new Label("End Time: "), endTimePicker);
+        startTimeBox.setAlignment(Pos.CENTER);
+        endTimeBox.setAlignment(Pos.CENTER);
 
-        HBox datesBox = new HBox(new Label("Season: "), seasonUI, toggleButtonsPane, cancelSeasonButton, startDateLabel, startDatePicker, endDateLabel, endDatePicker);
+        HBox datesBox = new HBox(new Label("Season: "), seasonUI, toggleButtonsPane);
         HBox positionBox = new HBox(new Label("Position: "), positionUI);
         HBox dOWBox = new HBox(new Label("Day Of Week: "), dayOfWeekUI);
         HBox memberBox = new HBox(new Label("Member: "), memberChoiceBox);
+        datesBox.setAlignment(Pos.CENTER);
+        positionBox.setAlignment(Pos.CENTER);
+        dOWBox.setAlignment(Pos.CENTER);
+        memberBox.setAlignment(Pos.CENTER);
 
-        VBox test = new VBox(seasonStartAndEnd, datesBox);
+        VBox seasonVBox = new VBox(seasonStartAndEnd, datesBox);
+        seasonVBox.setAlignment(Pos.CENTER);
         mVBox.getChildren().addAll(dOWBox, startTimeBox, endTimeBox, positionBox, profileBox);
         mVBox.setSpacing(10.0);
+        mVBox.setAlignment(Pos.CENTER);
 
-        borderPane.setTop(test);
+        borderPane.setTop(seasonVBox);
         BorderPane.setMargin(mVBox, new Insets(0, 0, 10, 10));
-        BorderPane.setMargin(test, new Insets(0, 0, 10, 10));
+        BorderPane.setMargin(seasonVBox, new Insets(0, 0, 10, 10));
         borderPane.setCenter(mVBox);
+        // BorderPane.setAlignment(seasonVBox, Pos.CENTER);
+        // BorderPane.setAlignment(mVBox, Pos.CENTER);
 
         HBox generateShiftBox = new HBox(generateIndividualShiftButton, generateAllShiftsButton);
         HBox generateGroupBox = new HBox(generateGroupShiftButton);
+        memberShiftShower.setAlignment(Pos.CENTER);
         HBox memberShiftControls = new HBox(memberShiftShower, borderPane);
+
+        // Ensuring the elements grow to fill the space and align properly
         HBox.setHgrow(memberShiftControls, Priority.ALWAYS);
+        HBox.setHgrow(borderPane, Priority.ALWAYS);
+        VBox.setVgrow(borderPane, Priority.ALWAYS);
+
+        // Center alignment for HBox and VBox elements
+        generateShiftBox.setAlignment(Pos.CENTER);
+        generateGroupBox.setAlignment(Pos.CENTER);
+        memberShiftControls.setAlignment(Pos.CENTER);
+        vbox.setAlignment(Pos.CENTER);
 
         vbox.getChildren().addAll(memberBox, memberShiftControls, generateShiftBox, generateGroupBox);
         importVBox.getChildren().addAll(gridPane);
@@ -361,7 +366,15 @@ public class MainUI {
         StackPane UIViewPane = new StackPane(importVBox, vbox);
         UIViewPane.setAlignment(Pos.CENTER);
 
-        VBox mainVBox = new VBox(UIViewPane);
+        HBox center = new HBox(UIViewPane);
+        center.setAlignment(Pos.CENTER);
+
+        VBox mainVBox = new VBox(center);
+        mainVBox.setAlignment(Pos.CENTER);
+
+        // Setting grow priority for main containers
+        VBox.setVgrow(center, Priority.ALWAYS);
+        HBox.setHgrow(UIViewPane, Priority.ALWAYS);
 
         return mainVBox;
     }
