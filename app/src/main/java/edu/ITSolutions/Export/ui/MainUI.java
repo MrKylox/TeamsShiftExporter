@@ -425,7 +425,6 @@ public class MainUI {
         }
 
         if (scheduleController != null) {
-            System.out.println("ScheduleController: "+ scheduleController);
             System.out.println("Members: "+ allMembers);
 
             for (Member member : allMembers) {
@@ -469,7 +468,7 @@ public class MainUI {
         }
     }
 
-    private void generateShiftForSelectedMember(Member selectedMember) {
+    public void generateShiftForSelectedMember(Member selectedMember) {
         List<LocalDate> receivedDates = new ArrayList<>();
         List<Shift> receivedSchedule = new ArrayList<>();
         ScheduleController scheduleController = null;
@@ -519,10 +518,56 @@ public class MainUI {
 
     }
 
-    public void generateShiftForGroup(List<String> selectedGroup, ObservableList<Member> memberList) {
-        for (Member member : memberList) {
+    public void generateShiftForGroup(List<String> selectedGroup) {
+        List<LocalDate> receivedDates = new ArrayList<>();
+        List<Shift> receivedSchedule = new ArrayList<>();
+        ScheduleController scheduleController = null;
+        try {
+            profilesUtil = new ProfilesUtil();
+            scheduleController = new ScheduleController(excelUtil.getWorkbook());
+            excelUtil.clearSheetExceptHeader();
+            System.out.println("Schedule Creation Started");
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        for (Member member : excelUtil.getMembers()) {
             if (selectedGroup.contains(member.getName())) {
-                generateShiftForSelectedMember(member);
+                if (scheduleController != null) {
+                    receivedSchedule = profilesUtil.getSchedule(member.getName());
+                    System.out.println("Member selected: "+member.getName());
+                    
+                    for (Shift shift : receivedSchedule) {
+                        receivedDates = profilesUtil.getSeasonDates(shift.getSeason());
+                        String startTime = shift.getStartTime();
+                        String endTime = shift.getEndTime();
+                        String position = shift.getPosition();
+                        String selectedDay = shift.getWeekDay();
+        
+                        if (receivedDates.size() >= 2) {
+                            System.out.println("Received dates is greater than 2");
+                            LocalDate startDate = receivedDates.get(0);
+                            LocalDate endDate = receivedDates.get(1);
+        
+                            if (!startDate.isAfter(endDate) &&
+                                    startTime != null && !startTime.isEmpty() &&
+                                    endTime != null && !endTime.isEmpty() &&
+                                    position != null && !position.isEmpty()) {
+        
+                                for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+                                    if (selectedDay != null && selectedDay.equalsIgnoreCase(date.getDayOfWeek().toString())) {
+                                        System.out.println("Adding shifts to schedule: " + selectedDay);
+                                        scheduleController.addSchedule(member.getName(), member.getEmail(), shift.getGroup(), date.toString(), startTime, date.toString(), endTime, shift.getColor());
+                                        try {
+                                            excelUtil.save();
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
