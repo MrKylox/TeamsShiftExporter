@@ -24,7 +24,6 @@ import javafx.geometry.VPos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
@@ -59,7 +58,6 @@ public class MainUI {
     private ProfileController profileController;
     private CustomCheckBox customCheckBox;
     private AllShiftShower allShiftShower;
-    private MemberSelectionUI memberSelectionUI;
     private App app;
 
     // Declare importVBox as a class member variable
@@ -73,7 +71,6 @@ public class MainUI {
             customCheckBox = new CustomCheckBox();
             memberShiftShower = new MemberShiftShower();
             allShiftShower = new AllShiftShower();
-            memberSelectionUI = new MemberSelectionUI(memberList);
             app = new App();
         } catch (IOException e) {
             e.printStackTrace();
@@ -382,7 +379,12 @@ public class MainUI {
         if (db.hasFiles()) {
             success = true;
             for (File file : db.getFiles()) {
-                ExcelUtil.getInstance();
+                try{
+                    excelUtil = new ExcelUtil(file);
+                }
+                catch(IOException e){
+                    System.out.println("Import error: "+e);
+                }
                 memberList.setAll(excelUtil.getMembers());
                 vbox.setVisible(true);
                 importVBox.setVisible(false);
