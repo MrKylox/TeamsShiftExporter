@@ -30,7 +30,7 @@ import javafx.scene.control.Label;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -80,12 +80,9 @@ public class MainUI {
     public VBox createMainLayout() {
         vbox = new VBox();
         importVBox = new VBox();
-        VBox mVBox = new VBox();
-        GridPane gridPane = new GridPane();
-        BorderPane borderPane = new BorderPane();
+        VBox mainInputVbox = new VBox();
 
         Label importLabel = new Label("Import Excel File");
-
         Button importButton = new Button("Import");
         Button SaveProfileButton = new Button("Save Shift");
         Button deleteShiftButton = new Button("Delete Shift");
@@ -96,14 +93,6 @@ public class MainUI {
 
         memberShiftShower = new MemberShiftShower();
         dayOfWeekUI = new DayOfWeekUI();
-
-        gridPane.add(importLabel, 0, 0);
-        gridPane.add(importButton, 0, 1);
-        gridPane.setAlignment(Pos.CENTER);
-        GridPane.setHalignment(importLabel, HPos.CENTER);
-        GridPane.setHalignment(importButton, HPos.CENTER);
-        GridPane.setValignment(importLabel, VPos.CENTER);
-        GridPane.setValignment(importButton, VPos.CENTER);
 
         memberShiftShower.setShiftList(shiftList);
         memberChoiceBox = new ComboBox<>(memberList);
@@ -273,7 +262,22 @@ public class MainUI {
         generateIndividualShiftButton.setOnAction(e -> {
             Member selectedMember = memberChoiceBox.getSelectionModel().getSelectedItem();
             if (selectedMember != null) {
-                generateShiftForSelectedMember(selectedMember);
+                Alert alert = new Alert(AlertType.CONFIRMATION);
+                alert.setTitle("Confirmation");
+                alert.setHeaderText("Are you sure you would like to generate for the following member:");
+                alert.setContentText(selectedMember.getName());
+                alert.showAndWait().ifPresent(response -> {
+                    if (response == ButtonType.OK) {
+                        generateShiftForSelectedMember(selectedMember);
+                        System.out.println("Schedule Generated");
+                    }
+                });
+            } else {
+                Alert alert = new Alert(AlertType.WARNING);
+                alert.setTitle("No member Selected");
+                alert.setHeaderText("Please make sure a member is selected");
+                // alert.setContentText("NOTE: Check if the checkboxes are marked");
+                alert.showAndWait();
             }
         });
 
@@ -307,73 +311,113 @@ public class MainUI {
             }
         });
 
-        StackPane toggleButtonsPane = new StackPane(editSeasonsButton);
-        toggleButtonsPane.setAlignment(Pos.CENTER);
 
-        HBox profileBox = new HBox(SaveProfileButton, deleteShiftButton);
-        profileBox.setAlignment(Pos.CENTER);
+        HBox profileBox = new HBox(SaveProfileButton, deleteShiftButton); // HBox that contains the save and delete profiles
+        HBox startTimeBox = new HBox(new Label("Start Time: "), startTimePicker); // Choose the start time Hbox
+        HBox endTimeBox = new HBox(new Label("End Time: "), endTimePicker); // Choose the end time Hbox
+        HBox datesBox = new HBox(new Label("Season: "), seasonUI, editSeasonsButton); //Choose the dates Hbox
+        HBox positionBox = new HBox(new Label("Position: "), positionUI); // Choose the Position Hbox
+        HBox dOWBox = new HBox(new Label("Day Of Week: "), dayOfWeekUI); // Choose the day of week Hbox
+        HBox memberBox = new HBox(new Label("Member: "), memberChoiceBox); // Choose the member Hbox
 
-        HBox startTimeBox = new HBox(new Label("Start Time: "), startTimePicker);
-        HBox endTimeBox = new HBox(new Label("End Time: "), endTimePicker);
-        startTimeBox.setAlignment(Pos.CENTER);
-        endTimeBox.setAlignment(Pos.CENTER);
+        VBox generateVbox = new VBox(generateIndividualShiftButton, generateGroupShiftButton, generateAllShiftsButton);
+        generateVbox.setSpacing(10);
+        generateVbox.setAlignment(Pos.BOTTOM_CENTER);
 
-        HBox datesBox = new HBox(new Label("Season: "), seasonUI, toggleButtonsPane);
-        HBox positionBox = new HBox(new Label("Position: "), positionUI);
-        HBox dOWBox = new HBox(new Label("Day Of Week: "), dayOfWeekUI);
-        HBox memberBox = new HBox(new Label("Member: "), memberChoiceBox);
-        datesBox.setAlignment(Pos.CENTER);
-        positionBox.setAlignment(Pos.CENTER);
-        dOWBox.setAlignment(Pos.CENTER);
-        memberBox.setAlignment(Pos.CENTER);
+        // GridPane -----------------------------------------------------------------------------------------
+        GridPane gridPane = new GridPane();
+        // Column Constraints for column 0
+        ColumnConstraints column0 = new ColumnConstraints();
+        column0.setPercentWidth(20);
+        column0.setHgrow(Priority.ALWAYS);
 
-        VBox seasonVBox = new VBox(seasonStartAndEnd, datesBox);
-        seasonVBox.setAlignment(Pos.CENTER);
-        mVBox.getChildren().addAll(dOWBox, startTimeBox, endTimeBox, positionBox, profileBox);
-        mVBox.setSpacing(10.0);
-        mVBox.setAlignment(Pos.CENTER);
+        // Column Constraints for column 1
+        ColumnConstraints column1 = new ColumnConstraints();
+        column1.setPercentWidth(70);
+        column1.setHgrow(Priority.ALWAYS);
 
-        borderPane.setTop(seasonVBox);
-        BorderPane.setMargin(mVBox, new Insets(0, 0, 10, 10));
-        BorderPane.setMargin(seasonVBox, new Insets(0, 0, 10, 10));
-        borderPane.setCenter(mVBox);
-        // BorderPane.setAlignment(seasonVBox, Pos.CENTER);
-        // BorderPane.setAlignment(mVBox, Pos.CENTER);
+        // Add column constraints to the grid
+        gridPane.getColumnConstraints().addAll(column0, column1);
+        gridPane.setVgap(16);
 
-        HBox generateShiftBox = new HBox(generateIndividualShiftButton, generateAllShiftsButton);
-        HBox generateGroupBox = new HBox(generateGroupShiftButton);
-        memberShiftShower.setAlignment(Pos.CENTER);
-        HBox memberShiftControls = new HBox(memberShiftShower, borderPane);
+        //Profile Box
+        gridPane.add(seasonStartAndEnd, 0, 0);
+        gridPane.add(seasonUI, 0, 1);
+        gridPane.add(editSeasonsButton, 1, 1);
+        //---------
 
-        // Ensuring the elements grow to fill the space and align properly
-        HBox.setHgrow(memberShiftControls, Priority.ALWAYS);
-        HBox.setHgrow(borderPane, Priority.ALWAYS);
-        VBox.setVgrow(borderPane, Priority.ALWAYS);
+        //Day Of Week Box
+        gridPane.add(new Label("Day Of Week: "), 0, 2);
+        gridPane.add(dayOfWeekUI, 1, 2);
+        //---------------
+
+        //Start Time and End Time
+        gridPane.add(new Label("Start Time: "), 0, 3);
+        gridPane.add(startTimePicker, 1, 3);
+
+        gridPane.add(new Label("End Time: "), 0, 4);
+        gridPane.add(endTimePicker, 1, 4);
+        //-----------------------
+
+        //Position Box 
+        gridPane.add(new Label("Choose Position: "), 0, 5);
+        gridPane.add(positionUI, 1, 5);
+        //------------
+
+        //Save and Delete buttons
+        gridPane.add(SaveProfileButton, 0, 6);
+        gridPane.add(deleteShiftButton, 0, 7);
+        //-----------------------
+
+        // Generating Buttons
+        gridPane.add(generateIndividualShiftButton, 0, 8, 2, 1);
+        gridPane.add(generateGroupShiftButton, 0, 9,2, 1);
+        gridPane.add(generateAllShiftsButton, 0, 10,2, 1);
+        gridPane.setAlignment(Pos.CENTER);
+        // gridPane.setGridLinesVisible(true); // DELETE This Line WHEN DONE ---------------------------------
+
+        //mainRightVBox will contain all of the above
+        mainInputVbox.getChildren().addAll(seasonStartAndEnd, datesBox, dOWBox, startTimeBox, endTimeBox,
+         positionBox, profileBox, generateVbox);
+        mainInputVbox.setSpacing(10.0);
+        mainInputVbox.setAlignment(Pos.CENTER);
+
+        HBox.setHgrow(memberShiftShower, Priority.ALWAYS);
+        VBox memberPickerShower = new VBox(memberBox, memberShiftShower);
+        memberPickerShower.setSpacing(16);
+
+        HBox mainUIVbox = new HBox(20, memberPickerShower, gridPane);  //Replace gridPane with mainInputVbox if want to change
 
         // Center alignment for HBox and VBox elements
-        generateShiftBox.setAlignment(Pos.CENTER);
-        generateGroupBox.setAlignment(Pos.CENTER);
-        memberShiftControls.setAlignment(Pos.CENTER);
+        memberBox.setAlignment(Pos.CENTER);
+        mainUIVbox.setAlignment(Pos.CENTER);
+
+        vbox.getChildren().addAll(mainUIVbox);
+        vbox.setSpacing(10);
         vbox.setAlignment(Pos.CENTER);
 
-        vbox.getChildren().addAll(memberBox, memberShiftControls, generateShiftBox, generateGroupBox);
-        importVBox.getChildren().addAll(gridPane);
+        // Import VBox -------------------------
+        HBox labelImport = new HBox(importLabel);
+        HBox buttonImport = new HBox(importButton);
+        labelImport.setAlignment(Pos.TOP_CENTER);
+        buttonImport.setAlignment(Pos.TOP_CENTER);
+
+        importVBox.getChildren().addAll(labelImport, buttonImport);
         importVBox.setAlignment(Pos.CENTER);
 
         importVBox.setOnDragOver(this::handleDragOver);
         importVBox.setOnDragDropped(this::handleDragDropped);
 
+        // End Of Import VBox -------------------
+
         StackPane UIViewPane = new StackPane(importVBox, vbox);
         UIViewPane.setAlignment(Pos.CENTER);
 
-        HBox center = new HBox(UIViewPane);
-        center.setAlignment(Pos.CENTER);
-
-        VBox mainVBox = new VBox(center);
+        VBox mainVBox = new VBox(UIViewPane);
         mainVBox.setAlignment(Pos.CENTER);
 
         // Setting grow priority for main containers
-        VBox.setVgrow(center, Priority.ALWAYS);
+        VBox.setVgrow(UIViewPane, Priority.ALWAYS);
         HBox.setHgrow(UIViewPane, Priority.ALWAYS);
 
         return mainVBox;
