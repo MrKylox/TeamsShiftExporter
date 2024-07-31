@@ -21,6 +21,9 @@ public class MemberShiftShower extends HBox {
         shiftList = FXCollections.observableArrayList();
         customCheckBox = new CustomCheckBox();
 
+        tableView.setMinWidth(800);
+        tableView.setMinHeight(500);
+
         // Columns for the Shift Table
         TableColumn<Shift, Boolean> checkBoxColumn = new TableColumn<>("Select");
         checkBoxColumn.setCellValueFactory(cellData -> cellData.getValue().selectedProperty());
@@ -45,7 +48,12 @@ public class MemberShiftShower extends HBox {
         TableColumn<Shift, String> seasonColumn = new TableColumn<>("Season");
         seasonColumn.setCellValueFactory(new PropertyValueFactory<>("season"));
 
-        
+        memberColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.2));
+        weekdayColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.1));
+        startTimeColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.1));
+        endTimeColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.1));
+        positionColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.2));
+        seasonColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.2));
 
         @SuppressWarnings("unchecked")
         TableColumn<Shift, String>[] columns = new TableColumn[] {
@@ -53,6 +61,7 @@ public class MemberShiftShower extends HBox {
         };
         tableView.getColumns().addAll(columns);
         tableView.setItems(shiftList);
+        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
 
         this.getChildren().add(tableView);
     }
