@@ -6,8 +6,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import edu.ITSolutions.Export.App;
-import edu.ITSolutions.Export.Shift;
 import edu.ITSolutions.Export.App.appContext;
+import edu.ITSolutions.Export.Shift;
 import edu.ITSolutions.Export.util.ProfilesUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -47,6 +47,7 @@ public class AllShifts{
     public VBox createAllShiftsLayout(){
         vbox = new VBox();
         hbox = new HBox();
+
         buttonContainer = new HBox();
         allShiftShower.setAllShiftList(getAllShifts());//list of shifts found
         hbox.getChildren().setAll(allShiftShower);//displays every shift in list
@@ -73,11 +74,12 @@ public class AllShifts{
         });
 
         cancelButton.setOnAction(e -> {
-            app.switchToMainTab(appContext.getTabPane(),appContext.getAllShiftTab());
+            app.switchToMainTab(appContext.getTabPane(),appContext.getMainTab(),appContext.getAllShiftTab());
         });
         
         doneButton.setOnAction(e -> {
-            app.switchToMainTab(appContext.getTabPane(), appContext.getAllShiftTab());
+            app.switchToMainTab(appContext.getTabPane(),appContext.getMainTab(),appContext.getAllShiftTab());
+
             showConfirmCancelButtons();
         });
         //-------------------------------------------------------//
@@ -107,7 +109,7 @@ public class AllShifts{
 
     //recieves existing list to update the table
     public ObservableList<Shift> getAllShifts(){
-        Sheet memberShiftSheet = profilesUtil.getMemeberSheet();
+        Sheet memberShiftSheet = profilesUtil.getMemberSheet();
         ObservableList<String> allMemberNameList = FXCollections.observableArrayList();
         ObservableList<Shift> allMemberShiftList = FXCollections.observableArrayList();
 
