@@ -14,7 +14,11 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.stage.Stage;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class App extends Application {
+    private static final Logger LOGGER = LogManager.getLogger(App.class);
     private TabPane tabPane;
     private Tab allShiftTab;
     private Tab mainTab;
@@ -139,13 +143,18 @@ public class App extends Application {
     }
 
     public static void main(String[] args) {
+        LOGGER.info("Application started");
         ProfilesUtil.createDirectoryIfNotExists();
 
         if (!ProfilesUtil.doesFileExist()) {
             ProfilesUtil.createExcelFile();
             System.out.println("Excel file created.");
+            LOGGER.info("Excel file created from profile util");
+
         } else {
             System.out.println("Excel file already exists. Reading data...");
+            LOGGER.info("Excel file already exists. Now reading data...");
+
         }
         launch(args);
     }

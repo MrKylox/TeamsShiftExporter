@@ -10,6 +10,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -20,8 +22,10 @@ import edu.ITSolutions.Export.Shift;
 import javafx.collections.ObservableList;
 
 public class ProfilesUtil {
-    private static final String DIRECTORY_PATH = System.getProperty("user.home") + "\\ShiftExporter";
-    private static final String FILE_NAME = DIRECTORY_PATH + "\\MemberProfiles.xlsx";
+    private static final Logger LOGGER = LogManager.getLogger(ProfilesUtil.class);
+
+    private static final String DIRECTORY_PATH = System.getProperty("user.home") + File.separator + "ShiftExporter";
+    private static final String FILE_NAME = DIRECTORY_PATH + File.separator + "MemberProfiles.xlsx";
     private static final String MEMBER_PROFILES_SHEET = "MemberProfiles";
     private static final String SEASON_PROFILES_SHEET = "SeasonProfiles";
     // private static final String MEMBER_NAMES = "MemberNames";
@@ -42,6 +46,7 @@ public class ProfilesUtil {
         File directory = new File(DIRECTORY_PATH);
         if (!directory.exists()) {
             directory.mkdirs();
+            LOGGER.info("Directory created: "+directory.getPath());
         }
     }
 
