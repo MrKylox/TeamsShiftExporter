@@ -25,7 +25,9 @@ dependencies {
     implementation 'org.openjfx:javafx:22.0.1'
     implementation 'org.apache.commons:commons-csv:1.9.0'
     implementation 'org.apache.poi:poi:5.2.3'
-   implementation 'org.apache.poi:poi-ooxml:5.2.3'
+    implementation 'org.apache.poi:poi-ooxml:5.2.3'
+    implementation 'org.apache.logging.log4j:log4j-core:2.23.1'
+    implementation 'org.apache.logging.log4j:log4j-api:2.23.1`'
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -55,74 +57,107 @@ jlink {
 
 tasks.named('test') {
    // Use JUnit Platform for unit tests.
-   useJUnitPlatform()
+    useJUnitPlatform()
 }
 
 tasks.withType(JavaCompile) {
-   options.compilerArgs += ['--module-path', classpath.asPath, '--add-modules', 'javafx.controls,javafx.fxml']
+    options.compilerArgs += ['--module-path', classpath.asPath, '--add-modules', 'javafx.controls,javafx.fxml']
 }
 
 task customFatJar(type: Jar) {
-   manifest {
-       attributes 'Main-Class': 'edu.ITSolutions.Export.App'  // Ensure this matches your main class
-   }
-   archiveBaseName = 'ShiftExporter'
-   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-   from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
-   with jar
+    manifest {
+        attributes 'Main-Class': 'edu.ITSolutions.Export.App'  // Ensure this matches your main class
+    }
+    archiveBaseName = 'ShiftExporter'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
 }
 
 task createRuntimeImage(type: Exec) {
-   dependsOn customFatJar
-   doFirst {
-       def javaHome = javaToolchains.compilerFor {
-           languageVersion = JavaLanguageVersion.of(21)
-       }.get().metadata.installationPath
+    dependsOn customFatJar
+    doFirst {
+        def javaHomePath = System.getProperty('java.home')
+        def jmodsPath = javaHomePath + File.separator + "jmods"
+        def customFatJar = "$buildDir/libs/ShiftExporter.jar"
+        def outputDir = "$buildDir/runtime"
 
-       def jmodsPath = "C:\\Users\\berek\\Desktop\\Java\\javafx-sdk-22.0.2\\javafx-jmods-22.0.2"
-       def customFatJar = "$buildDir/libs/ShiftExporter.jar"
-       def outputDir = "$buildDir/runtime"
+        println("Java Home: $javaHomePath")
+        println("jmods path: $jmodsPath")
+        println("Custom Jar Path: $customFatJar")
+        println("Output Directory: $outputDir")
 
-       println("Java Home: $javaHome")
-       println("jmods path: $jmodsPath")
-       println("Custom Jar Path: $customFatJar")
-       println("Output Directory: $outputDir")
+        //Clean up the output directory if it exists
+        file(outputDir).deleteDir()
 
-       //Clean up the output directory if it exists
-       file(outputDir).deleteDir()
-
-       commandLine = [
-           "${javaHome}/bin/jlink",
-           '--module-path', jmodsPath,
-           '--add-modules', 'java.base,javafx.controls,javafx.fxml',
-           '--output', "$buildDir/runtime"
-       ]
-   }
+        commandLine = [
+            "${javaHomePath}/bin/jlink",
+            '--module-path', jmodsPath,
+            '--add-modules', 'java.base,javafx.controls,javafx.fxml',
+            '--output', "$buildDir/runtime"
+        ]
+    }
 }
 
-task packageApp(type: Exec) {
-   dependsOn createRuntimeImage
-   doFirst {
-       def javaHome = javaToolchains.compilerFor {
-           languageVersion = JavaLanguageVersion.of(21)
-       }.get().metadata.installationPath
-       def runtimeImagePath = "$buildDir/runtime"
+task packageAppWin(type: Exec) {
+    dependsOn createRuntimeImage
+    doFirst {
+        def javaHomePath = System.getProperty('java.home')
+        def runtimeImagePath = "$buildDir/runtime"
 
-       println("Packaging with Java Home: $javaHome")
-       println("Runtime Image Path: $runtimeImagePath")
+        println("Packaging with Java Home: $javaHomePath")
+        println("Runtime Image Path: $runtimeImagePath")
 
-       commandLine = [
-           "${javaHome}/bin/jpackage",
-           '--name', 'ShiftExporter',
-           '--input', "$buildDir/libs",
-           '--main-jar', 'ShiftExporter.jar',
-           '--main-class', 'edu.ITSolutions.Export.App',
-           '--type', 'msi',
-           '--dest', "$buildDir/installer",
-           '--runtime-image', runtimeImagePath,
-           '--win-menu',
-           '--win-shortcut'
-           // '--icon', 'path/to/icon.ico' // Replace with the actual path to your icon
-       ]
-   }
+        commandLine = [
+            "${javaHomePath}/bin/jpackage",
+            '--name', 'ShiftExporter',
+            '--input', "$buildDir/libs",
+            '--main-jar', 'ShiftExporter.jar',
+            '--main-class', 'edu.ITSolutions.Export.App',
+            '--type', 'msi',
+            '--dest', "$buildDir/installer",
+            '--runtime-image', runtimeImagePath,
+            '--win-menu',
+            '--win-shortcut',
+            '--win-menu-group', 'ShiftExporter'
+            // '--icon', 'path/to/icon.ico' // Replace with the actual path to your icon
+        ]
+    }
+}
+
+task packageAppMac(type: Exec){
+    dependsOn createRuntimeImage
+    doFirst{
+        def javaHomePath = System.getProperty('java.home')
+        def runtimeImagePath = "$buildDir/runtime"
+
+        println("Packaging with Java Home: $javaHomePath")
+        println("Runtime Image Path: $runtimeImagePath")
+
+        commandLine = [
+            "${javaHomePath}/bin/jpackage",
+            '--name', 'ShiftExporter',
+            '--input', "$buildDir/libs",
+            '--main-jar', 'ShiftExporter.jar',
+            '--main-class', 'edu.ITSolutions.Export.App',
+            '--type', 'dmg',
+            '--dest', "$buildDir/installer",
+            '--runtime-image', runtimeImagePath
+            // '--icon', 'path/to/icon.ico' // Replace with the actual path to your icon
+        ]
+    }
+}
+
+task packageApp{
+    if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+        dependsOn packageAppWin
+        println("Device is Windows")
+    }
+    else if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+        dependsOn packageAppMac
+        println("Device is Mac")
+    }
+    else{
+        throw new GradleException("Unsupported OS: Only Windows and macOS are supported.")
+    }
 }
