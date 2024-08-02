@@ -100,29 +100,71 @@ task createRuntimeImage(type: Exec) {
    }
 }
 
-task packageApp(type: Exec) {
+task packageAppWin(type: Exec) {
    dependsOn createRuntimeImage
    doFirst {
-       def javaHome = javaToolchains.compilerFor {
-           languageVersion = JavaLanguageVersion.of(21)
-       }.get().metadata.installationPath
-       def runtimeImagePath = "$buildDir/runtime"
+        def javaHome = javaToolchains.compilerFor {
+            languageVersion = JavaLanguageVersion.of(21)
+        }.get().metadata.installationPath
+        def runtimeImagePath = "$buildDir/runtime"
 
-       println("Packaging with Java Home: $javaHome")
-       println("Runtime Image Path: $runtimeImagePath")
+        println("Packaging with Java Home: $javaHome")
+        println("Runtime Image Path: $runtimeImagePath")
 
-       commandLine = [
-           "${javaHome}/bin/jpackage",
-           '--name', 'ShiftExporter',
-           '--input', "$buildDir/libs",
-           '--main-jar', 'ShiftExporter.jar',
-           '--main-class', 'edu.ITSolutions.Export.App',
-           '--type', 'msi',
-           '--dest', "$buildDir/installer",
-           '--runtime-image', runtimeImagePath,
-           '--win-menu',
-           '--win-shortcut'
-           // '--icon', 'path/to/icon.ico' // Replace with the actual path to your icon
-       ]
+        commandLine = [
+            "${javaHome}/bin/jpackage",
+            '--name', 'ShiftExporter',
+            '--input', "$buildDir/libs",
+            '--main-jar', 'ShiftExporter.jar',
+            '--main-class', 'edu.ITSolutions.Export.App',
+            '--type', 'msi',
+            '--dest', "$buildDir/installer",
+            '--runtime-image', runtimeImagePath,
+            '--win-menu',
+            '--win-shortcut',
+            '--win-menu-group', 'ShiftExporter'
+            // '--icon', 'path/to/icon.ico' // Replace with the actual path to your icon
+        ]
    }
+}
+
+task packageAppMac(type: Exec){
+    dependsOn createRuntimeImage
+    doFirst{
+        def javaHome = javaToolchains.compilerFor {
+            languageVersion = JavaLanguageVersion.of(21)
+        }.get().metadata.installationPath
+        def runtimeImagePath = "$buildDir/runtime"
+
+        println("Packaging with Java Home: $javaHome")
+        println("Runtime Image Path: $runtimeImagePath")
+
+        commandLine = [
+            "${javaHome}/bin/jpackage",
+            '--name', 'ShiftExporter',
+            '--input', "$buildDir/libs",
+            '--main-jar', 'ShiftExporter.jar',
+            '--main-class', 'edu.ITSolutions.Export.App',
+            '--type', 'dmg',
+            '--dest', "$buildDir/installer",
+            '--runtime-image', runtimeImagePath
+            // '--icon', 'path/to/icon.ico' // Replace with the actual path to your icon
+        ]
+    }
+}
+
+task packageApp{
+    if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+        dependsOn packageAppWin
+        println("Device is Windows")
+        println("Now packaging app for Windows")
+    }
+    else if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+        dependsOn packageAppMac
+        println("Device is Mac")
+        println("Now packaging app for Mac")
+    }
+    else{
+        throw new GradleException("Unsupported OS: Only Windows and macOS are supported.")
+    }
 }
