@@ -8,9 +8,7 @@ public class CustomTimePicker extends HBox {
     private final ComboBox<String> ampmComboBox;
     private String hour;
     private final String minute = "00";
-    private final String minute2 = "15";
-    private final String minute3 = "30";
-    private final String minute4 = "45";
+    private final String minute2 = "30";
     private String time;
     private String time2;
 
