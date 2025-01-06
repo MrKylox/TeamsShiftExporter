@@ -8,9 +8,13 @@ public class CustomTimePicker extends HBox {
     private final ComboBox<String> ampmComboBox;
     private String hour;
     private final String minute = "00";
-    private final String minute2 = "30";
+    private final String minute2 = "15";
+    private final String minute3 = "30";
+    private final String minute4 = "45";
     private String time;
     private String time2;
+    private String time3;
+    private String time4;
 
 
     public CustomTimePicker() {
@@ -21,6 +25,9 @@ public class CustomTimePicker extends HBox {
             hour = Integer.toString(i);
             time = hour + ":" +  minute;
             time2 = hour + ":"+ minute2;
+            time3 = hour + ":"+ minute3;
+            time4 = hour + ":"+ minute4;
+
             hrminComboBox.getItems().addAll(time, time2);
         }
         ampmComboBox.getItems().addAll("am", "pm");
