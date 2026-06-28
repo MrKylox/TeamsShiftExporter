@@ -27,7 +27,7 @@ dependencies {
     implementation 'org.apache.poi:poi:5.2.3'
     implementation 'org.apache.poi:poi-ooxml:5.2.3'
     implementation 'org.apache.logging.log4j:log4j-core:2.23.1'
-    implementation 'org.apache.logging.log4j:log4j-api:2.23.1`'
+    implementation 'org.apache.logging.log4j:log4j-api:2.23.1'
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -60,7 +60,7 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-tasks.withType(JavaCompile) {
+tasks.named('compileJava') {
     options.compilerArgs += ['--module-path', classpath.asPath, '--add-modules', 'javafx.controls,javafx.fxml']
 }
 
@@ -160,4 +160,21 @@ task packageApp{
     else{
         throw new GradleException("Unsupported OS: Only Windows and macOS are supported.")
     }
+}
+
+sourceSets {
+    guiSmokeTest {
+        java.srcDir 'src/guiSmokeTest/java'
+        compileClasspath += sourceSets.main.output + configurations.runtimeClasspath
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
+tasks.register('guiSmokeTest', JavaExec) {
+    group = 'verification'
+    description = 'Runs a JavaFX GUI workflow smoke test against fake Excel data.'
+    classpath = sourceSets.guiSmokeTest.runtimeClasspath
+    mainClass = 'edu.ITSolutions.Export.ui.GuiWorkflowSmoke'
+    systemProperty 'java.awt.headless', 'false'
+    systemProperty 'user.home', layout.buildDirectory.dir('gui-smoke-home').get().asFile.absolutePath
 }

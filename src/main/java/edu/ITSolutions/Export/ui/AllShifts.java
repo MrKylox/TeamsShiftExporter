@@ -125,8 +125,12 @@ public class AllShifts{
             allMemberShiftList.addAll(profilesUtil.getProfileShifts(name));
         }
 
-        allShiftShower.setAllShiftList(allMemberShiftList);
-        hbox.getChildren().setAll(allShiftShower);
+        if (allShiftShower != null) {
+            allShiftShower.setAllShiftList(allMemberShiftList);
+        }
+        if (hbox != null && allShiftShower != null) {
+            hbox.getChildren().setAll(allShiftShower);
+        }
 
         return allMemberShiftList;
     }
